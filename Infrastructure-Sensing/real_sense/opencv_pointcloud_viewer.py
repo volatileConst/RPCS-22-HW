@@ -29,7 +29,7 @@ import math
 import time
 import cv2
 import numpy as np
-import pyrealsense2 as rs
+import pyrealsense2.pyrealsense2 as rs
 
 class AppState:
 
