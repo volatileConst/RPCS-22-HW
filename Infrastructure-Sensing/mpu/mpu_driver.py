@@ -36,16 +36,16 @@ def mpu_init():
 
 def mpu_read_data(addr):
 	#Accelero and Gyro value are 16-bit
-        high = bus.read_byte_data(Device_Address, addr)
-        low = bus.read_byte_data(Device_Address, addr+1)
-    
-        #concatenate higher and lower value
-        value = ((high << 8) | low)
-        
-        #to get signed value from mpu6050
-        if(value > 32768):
-                value = value - 65536
-        return value
+	high = bus.read_byte_data(Device_Address, addr)
+	low = bus.read_byte_data(Device_Address, addr+1)
+
+	#concatenate higher and lower value
+	value = ((high << 8) | low)
+	
+	#to get signed value from mpu6050
+	if(value > 32768):
+			value = value - 65536
+	return value
 
 
 bus = smbus.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
