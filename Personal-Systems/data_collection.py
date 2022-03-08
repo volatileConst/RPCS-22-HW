@@ -21,9 +21,9 @@ GPIO.setmode(GPIO.BCM)
 SLEEPTIME         = 0.1
 flat              = 1  # 1 ~ 5
 not_flat          = 3  # dummy value for bumps - need to manually label looking at data graph
-NO_BUMP_PATHNAME  = '/home/pi/RPCS-22-HW/Personal-Systems/flat1.csv'
+NO_BUMP_PATHNAME  = '/home/pi/RPCS-22-HW/Personal-Systems/flat_campus_grass.csv'
 YES_BUMP_PATHNAME = '/home/pi/RPCS-22-HW/Personal-Systems/bump1.csv'
-NUM_SAMPLES       = 100000
+NUM_SAMPLES       = 5000
 
 #set GPIO Pins
 GPIO_BUTTON = 27
@@ -52,7 +52,8 @@ if __name__ == "__main__":
 			row = [cur_time, flat, IMU.readAccelerometer(), IMU.readGyro()]
 			writer.writerow(row)
 		
-		print(row)
+		#print(row)
 
 		cur_time += SLEEPTIME
 		time.sleep(SLEEPTIME)
+        print("done")
