@@ -8,5 +8,5 @@ if __name__ == '__main__':
 
   # get readings
   while True:
-    print("distance: ", lidar.read_distance(), "cm")
+    print("distance: ", lidar.get_distance(), "cm")
     time.sleep(0.2)

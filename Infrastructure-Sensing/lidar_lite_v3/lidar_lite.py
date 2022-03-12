@@ -15,7 +15,7 @@ class lidar_lite():
         self.low_byte_reg = 0x10
         self.high_byte_reg = 0x0f
     
-    def read_distance(self):
+    def get_distance(self):
 
         # 1. write 0x04 to register 0x00
         bus.write_byte_data(self.i2c_addr, self.write_reg, 0x04)
