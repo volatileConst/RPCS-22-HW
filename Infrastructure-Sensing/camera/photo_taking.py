@@ -12,4 +12,4 @@ for i in range(10):
     cur_time_str = now.strftime("%H:%M:%S")
     
     # os.system("libcamera-still -o /home/pi/Desktop/RPCS/Infrastructure-Sensing/camera/pics/" + cur_time_str + ".jpg --immediate -n")
-    os.system("raspistill --nopreview -o /home/pi/Desktop/RPCS/Infrastructure-Sensing/camera/pics/" + cur_time_str + ".jpg -ex antishake")
+    os.system("fswebcam -r 1600x1200 /home/pi/Desktop/RPCS/Infrastructure-Sensing/camera/pics/" + cur_time_str + ".jpg")
