@@ -68,11 +68,6 @@ def get_image(pipeline, index):
     depth_colormap_dim = depth_colormap.shape
     color_colormap_dim = color_image.shape
 
-    color_img_path_name = './image/color_map_' + str(index) + '.png'
-    print(color_img_path_name)
-    depth_img_path_name = './image/depth_map_' + str(index) + '.png'
-    print(depth_img_path_name)
-
     # If depth and color resolutions are different, resize color image to match depth image for display
     if depth_colormap_dim != color_colormap_dim:
         resized_color_image = cv2.resize(color_image, dsize=(depth_colormap_dim[1], depth_colormap_dim[0]), interpolation=cv2.INTER_AREA)
@@ -81,7 +76,6 @@ def get_image(pipeline, index):
         return (color_image, depth_colormap)
 
 # setting the initial time
-seconds = time.time()
 time_elapsed = 0
 index = 0
 
@@ -91,6 +85,11 @@ if __name__ == '__main__':
     # initialize pipeline
     pipeline = stream_init()
 
+    # wait for pipeline
+    time.sleep(1.0)
+
+    seconds = time.time()
+
     while time_elapsed < 10:
         
         # calculate the time
@@ -98,7 +97,17 @@ if __name__ == '__main__':
         print(time_elapsed)
 
         # capture an image
-        get_image(pipeline, index)
+        color_map, depth_map = get_image(pipeline, index)
+
+        # path name
+        color_img_path_name = './image/color_map_' + str(index) + '.png'
+        print(color_img_path_name)
+        depth_img_path_name = './image/depth_map_' + str(index) + '.png'
+        print(depth_img_path_name)
+
+        # save
+        cv2.imwrite(color_img_path_name, color_map)
+        cv2.imwrite(depth_img_path_name, depth_map)
 
         index = index + 1
 
