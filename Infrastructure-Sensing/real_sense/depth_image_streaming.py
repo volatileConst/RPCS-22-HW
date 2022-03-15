@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     seconds = time.time()
 
-    while time_elapsed < 10:
+    while time_elapsed < 3:
         
         # calculate the time
         time_elapsed = time.time() - seconds

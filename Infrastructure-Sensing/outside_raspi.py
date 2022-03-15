@@ -37,7 +37,7 @@ if __name__ == '__main__':
         distance = lidar.get_distance()
 
         # zip file name
-        zip_path = './dummy_npz/test_' + str(index) + '.npz'
+        zip_path = './dummy_npz/outer_test_' + str(index) + '.npz'
 
         # numpy zip them
         np.savez(zip_path, RGB=color_map, DEP=depth_map, PRX=distance)
