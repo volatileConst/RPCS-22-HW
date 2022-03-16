@@ -23,10 +23,10 @@ if __name__ = '__main__':
 
     while true:
         # sample Arducam - one sample per package
-        camera_sample = mpu_read_data()
+        camera_sample = sample_camera()
 
         # sample MPU - 50 MPU samples per package
-        MPU_samples = sample_MPU()
+        MPU_samples = mpu_read_data()
 
         # sample microphone - 1 second of audio per package
         microphone_samples = sample_mic()
