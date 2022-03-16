@@ -1,5 +1,6 @@
 # motion processor unit (mpu) driver implementation
 # https://www.electronicwings.com/raspberry-pi/mpu6050-accelerometergyroscope-interfacing-with-raspberry-pi
+from dbus import Bus
 import smbus
 import numpy
 from time import sleep
@@ -17,11 +18,14 @@ GYRO_XOUT_H  = 0x43
 GYRO_YOUT_H  = 0x45
 GYRO_ZOUT_H  = 0x47
 
-def hi():
-	print("hi")
-	
+
 # Initialize MPU
-def mpu_init(bus, Device_Address):
+def mpu_init():
+
+	bus = smbus.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
+	
+	Device_Address = 0x68   # MPU6050 device address
+
 	#write to sample rate register
 	bus.write_byte_data(Device_Address, SMPLRT_DIV, 7)
 	
@@ -37,7 +41,9 @@ def mpu_init(bus, Device_Address):
 	#Write to interrupt enable register
 	bus.write_byte_data(Device_Address, INT_ENABLE, 1)
 
-def mpu_read_data(bus, Device_Address):
+	return bus, Device_Address
+
+def mpu_read_data(bus, Device_Address, addr):
 	#Accelero and Gyro value are 16-bit
 	high = bus.read_byte_data(Device_Address, addr)
 	low = bus.read_byte_data(Device_Address, addr+1)
@@ -51,17 +57,14 @@ def mpu_read_data(bus, Device_Address):
 	return value
 
 def run_mpu():
-	bus = smbus.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
-	Device_Address = 0x68   # MPU6050 device address
 
-	mpu_init(bus, Device_Address)
+	bus, Device_Address = mpu_init()
 
 	print ("Reading Data of Gyroscope and Accelerometer")
 
 
 	res_array = numpy.array([])
-
-	while True:
+	for i in range(0,1000):
 		gx_arr = []
 		gy_arr = []
 		gz_arr = []
@@ -70,14 +73,14 @@ def run_mpu():
 		az_arr = []
 		for x in range(100):
 			#Read Accelerometer raw value
-			acc_x = mpu_read_data(ACCEL_XOUT_H)
-			acc_y = mpu_read_data(ACCEL_YOUT_H)
-			acc_z = mpu_read_data(ACCEL_ZOUT_H)
+			acc_x = mpu_read_data(bus, Device_Address, ACCEL_XOUT_H)
+			acc_y = mpu_read_data(bus, Device_Address, ACCEL_YOUT_H)
+			acc_z = mpu_read_data(bus, Device_Address, ACCEL_ZOUT_H)
 			
 			#Read Gyroscope raw value
-			gyro_x = mpu_read_data(GYRO_XOUT_H)
-			gyro_y = mpu_read_data(GYRO_YOUT_H)
-			gyro_z = mpu_read_data(GYRO_ZOUT_H)
+			gyro_x = mpu_read_data(bus, Device_Address, GYRO_XOUT_H)
+			gyro_y = mpu_read_data(bus, Device_Address, GYRO_YOUT_H)
+			gyro_z = mpu_read_data(bus, Device_Address, GYRO_ZOUT_H)
 			
 			#Full scale range +/- 250 degree/C as per sensitivity scale factor
 			Ax = acc_x/16384.0
@@ -110,3 +113,4 @@ def run_mpu():
 		numpy.append(res_array, res)
 
 		print ("Gx=%.2f" %Gx, u'\u00b0'+ "/s", "\tGy=%.2f" %Gy, u'\u00b0'+ "/s", "\tGz=%.2f" %Gz, u'\u00b0'+ "/s", "\tAx=%.2f g" %Ax, "\tAy=%.2f g" %Ay, "\tAz=%.2f g" %Az) 	
+	return res_array
