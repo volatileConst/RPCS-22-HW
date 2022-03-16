@@ -11,11 +11,18 @@ import time
 import numpy as np
 from real_sense.depth_image_streaming import *
 from lidar_lite_v3.lidar_lite import *
+from aws import *
 
+# define the name of bucket here
+bucket_name = "18745-infrastructure"
+folder_path = "dummy_npz/"
 
 
 if __name__ == '__main__':
     
+    # starting aws instance
+    aws = AWS()
+
     # starting realsense pipeline
     pipeline = stream_init()
 
@@ -27,8 +34,13 @@ if __name__ == '__main__':
 
     # indexing the file
     index = 0
+
+    # record starting time
+    # start_time = time.time()
     
-    while index < 3:
+    while index < 20:
+        # print time
+        # print("current time:", time.time() - start_time)
 
         # getting color/depth maps from real sense
         color_map, depth_map = get_image(pipeline, index)
@@ -37,12 +49,18 @@ if __name__ == '__main__':
         distance = lidar.get_distance()
 
         # zip file name
-        zip_path = './dummy_npz/outer_test_' + str(index) + '.npz'
+        zip_path = 'outer_test_' + str(index) + '.npz'
+
+        file_path = folder_path + 'outer_test_' + str(index) + '.npz'
 
         # numpy zip them
         np.savez(zip_path, RGB=color_map, DEP=depth_map, PRX=distance)
 
+        # grab the file and ship it to the bucket
+        s3_msg = aws.upload_file_to_bucket(bucket_name, file_path)
+
         index += 1
+
 
     # stop the pipeline
     pipeline.stop()
