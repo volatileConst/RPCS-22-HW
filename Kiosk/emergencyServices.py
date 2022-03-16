@@ -7,12 +7,7 @@
 # a video of up to 10 minutes meant to be handed over to 
 # the relevant authorities
 import cv2
-import pyaudio
-import wave
-import threading
 import time
-import subprocess
-import os
 from datetime import datetime 
 from AVRecording import *
 
@@ -28,7 +23,7 @@ def recVideoThread():
 
     # Record for up to 10 minutes unless manually stopped 
     # by pressing the 'x' key
-    start_AVrecording(vid_name, cam=0, mic=None, rec_time=7)
+    start_AVrecording(vid_name, cam=0, mic=1, rec_time=7)
     print("Started AV rec...\n")
     # Time the camera recording. Stop recording after 
     # rec_time and save video locally.
@@ -51,9 +46,8 @@ def recVideoThread():
 
 
 
-def main():
+if __name__=="__main__":
     recVideoThread()
     print("Video rec thread complete...\n")
 
 
-main()

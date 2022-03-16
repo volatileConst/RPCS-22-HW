@@ -15,7 +15,7 @@ class VideoRecorder():
 
         self.open = True
         self.device_index = 0
-        self.fps = 15              # fps should be the minimum constant rate at which the camera can
+        self.fps = 60              # fps should be the minimum constant rate at which the camera can
         self.fourcc = "MJPG"       # capture images (with no decrease in speed over time; testing is required)
         self.frameSize = (640,480) # video formats and sizes also depend and vary according to the camera used
         self.video_filename = "temp_video.avi"
@@ -90,7 +90,7 @@ class AudioRecorder():
         self.open = True
         self.rate = 44100
         self.frames_per_buffer = 1024
-        self.channels = 2
+        self.channels = 1
         self.format = pyaudio.paInt16
         self.audio_filename = "temp_audio.wav"
         self.audio = pyaudio.PyAudio()
@@ -98,6 +98,7 @@ class AudioRecorder():
                                       channels=self.channels,
                                       rate=self.rate,
                                       input=True,
+                                      input_device_index=1,
                                       frames_per_buffer = self.frames_per_buffer)
         self.audio_frames = []
 
@@ -219,13 +220,13 @@ def stop_AVrecording(filename):
         subprocess.call(cmd, shell=True)
 
         print("Muxing")
-        cmd = "ffmpeg -ac 2 -channel_layout stereo -i temp_audio.wav -i temp_video2.avi -pix_fmt yuv420p " + filename + ".avi"
+        cmd = "ffmpeg -ac 2 -channel_layout mono -i temp_audio.wav -i temp_video2.avi -pix_fmt yuv420p " + filename + ".avi"
         subprocess.call(cmd, shell=True)
 
     else:
 
         print("Normal recording\nMuxing")
-        cmd = "ffmpeg -ac 2 -channel_layout stereo -i temp_audio.wav -i temp_video.avi -pix_fmt yuv420p " + filename + ".avi"
+        cmd = "ffmpeg -ac 2 -channel_layout mono -i temp_audio.wav -i temp_video.avi -pix_fmt yuv420p " + filename + ".avi"
         subprocess.call(cmd, shell=True)
 
         print("..")
