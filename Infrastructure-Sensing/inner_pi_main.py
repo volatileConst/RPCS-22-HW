@@ -9,7 +9,7 @@ import time
 import numpy as np
 # from camera/file.py import * 
 # from mpu/file.py import *
-from microphone/mpu_driver.py import *
+from microphone.mpu_driver.py import *
 # from GPS/file.py import *
 
 # setup sensors as needed
