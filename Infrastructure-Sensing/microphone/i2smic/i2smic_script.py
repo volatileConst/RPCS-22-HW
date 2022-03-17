@@ -17,9 +17,10 @@ def mic_read(time):
     a = read("audio.wav")
     # Convert to numpy array
     # os.system("cd ../..")
+    res = numpy.array(a[1],dtype=float)
     print("\nDone!\n")
-
-    return numpy.array(a[1],dtype=float)
+    # print(res[0])
+    return res
     
     # Save using numpy.savez
     # numpy.savez("audio.wav")
@@ -29,4 +30,4 @@ def mic_read(time):
     # Remove file.wav to save memory spae
     # os.system("rm file.wav")
 
-arecord -D plughw:0 -c1 -r 480000 -f S32_LE -t wav -V mono -d 1 audio.wav
+mic_read(1)

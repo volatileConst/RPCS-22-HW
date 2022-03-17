@@ -21,7 +21,16 @@ camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     
 exit()"""
 
-while(True):
+def sample_camera():
+    ret, frame = camera.read()
+    camera.grab()
+    print("Photo taken!")
+
+    return frame
+    
+    # cv2.destroyAllWindows()
+
+"""while(True):
     # Capture and display photo every 5 seconds
     ret, frame = camera.read()
     # print(cv2.CAP_PROP_BUFFERSIZE)
@@ -32,4 +41,4 @@ while(True):
     cv2.waitKey(1000)
     # time.sleep(3)
     
-    # cv2.destroyAllWindows()
+    # cv2.destroyAllWindows()"""
