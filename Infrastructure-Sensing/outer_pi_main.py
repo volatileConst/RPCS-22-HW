@@ -9,6 +9,7 @@
 
 import time
 import numpy as np
+import os
 from real_sense.depth_image_streaming import *
 from lidar_lite_v3.lidar_lite import *
 from aws import *
@@ -46,7 +47,9 @@ if __name__ == '__main__':
         color_map, depth_map = get_image(pipeline, index)
 
         # getting lidar reading
-        distance = lidar.get_distance()
+        distance = []
+        for i in range(25):
+            distance.append(lidar.get_distance())
 
         # zip file name
         zip_path = 'outer_test_' + str(index) + '.npz'
@@ -59,6 +62,15 @@ if __name__ == '__main__':
         # grab the file and ship it to the bucket
         s3_msg = aws.upload_file_to_bucket(bucket_name, file_path)
 
+        index += 1
+
+    # delete files
+    index = 0
+
+    while index < 20:
+
+        zip_path = 'outer_test_' + str(index) + '.npz'
+        os.remove(zip_path)
         index += 1
 
 
