@@ -1,8 +1,14 @@
-# runs on the RPi inside of the car
-# samples sensor data and compresses data into a package to send to cloud
-# aiming to send a package once every 5 seconds
-# sensor sampling + compression needs to happen in that time frame
-# note that this file is WIP - will not run properly yet (as of 3-16-22)
+# The streaming pipeline for raspberry inside
+# This pipeline contains:
+# - Arducam camera
+# - MPU6050 IMU
+# - I2S microphone
+# - ZOE-M8Q GPS
+# Data types include:
+# - 1980 x 1080 color image
+# - 6-axis data of 25 samples
+# - array of audio data (1 second)
+# - tuple of GPS latitude/longitude with corresponding errors
 
 # import files with functions to sample sensor data
 # from time import sleep
