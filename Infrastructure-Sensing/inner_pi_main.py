@@ -9,30 +9,52 @@ import time
 import numpy as np
 # from camera/file.py import * 
 # from mpu/file.py import *
-from microphone.mpu_driver.py import *
+from microphone/i2smic/i2smic_script.py import *
 # from GPS/file.py import *
+from aws import *
+
+# define the name of bucket here
+bucket_name = "18745-infrastructure"
+folder_path = "dummy_npz/"
 
 # setup sensors as needed
 def initialize_sensors():
     # call functions
-    mpu_init()
 
 if __name__ = '__main__':
-    # start sensors
-    initialize_sensors()
+    # starting aws instance
+    aws = AWS()
 
-    while true:
-        # sample Arducam - one sample per package
-        camera_sample = sample_camera()
+    # start sensors and wait
+    initialize_sensors()
+    time.sleep(5)
+
+    # send 20 packets
+    index = 0
+    while index < 20:
+        # sample Arducam - one sample per packet
+        # camera_sample = sample_camera()
 
         # sample MPU - 50 MPU samples per package
-        MPU_samples = mpu_read_data()
+        # MPU_samples = mpu_read_data()
 
         # sample microphone - 1 second of audio per package
-        microphone_samples = sample_mic()
+        mic_samples = sample_mic()
 
         # sample GPS - 1 sample per package
-        GPS_samples = sample_GPS()
+        # GPS_samples = sample_GPS()
 
-        # compress data samples and send to AWS
+        # zip file name
+        zip_path = 'inner_test_' + str(index) + '.npz'
+        file_path = folder_path + 'inner_test_' + str(index) + '.npz'
 
+        # numpy zip them
+        # np.savez(zip_path, CAM=camera_sample, MPU=MPU_samples, MIC=mic_samples, GPS=GPS_samples)
+        np.savez(zip_path, MIC=mic_samples)
+
+        # grab the file and ship it to the bucket
+        s3_msg = aws.upload_file_to_bucket(bucket_name, file_path)
+
+        index += 1
+
+    # end of transmission
