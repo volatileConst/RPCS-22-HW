@@ -1,6 +1,6 @@
 Getting Start - Personal Device
 
-Here is your IAM user account:mega:
+Here is your IAM user account:
 
 Console URL:console link
 Account ID: 224454369402
@@ -12,18 +12,19 @@ Install Python:
 
 Official Website
 Tutorial
+
 Required Python Package:
 
 Boto 3:
-
 pip3 install boto3
-dotenv:
 
+dotenv:
 pip3 install python-dotenv
+
 Install AWS-CLI:
 
 Official Website
-Configuring your AWS credential
+1. Configuring your AWS credential
 Type aws configure in your terminal
 Provide your “Access key ID” and “Secret access key” when prompted. Use “us-west-2” for “Default region name” and “json” for “Default output format”.
 You can find your team’s key infromation in the sharefolder
