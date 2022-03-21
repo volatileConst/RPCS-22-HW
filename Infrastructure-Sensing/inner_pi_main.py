@@ -30,9 +30,9 @@ if __name__ == '__main__':
     # wait
     # time.sleep(3)
 
-    # send 20 packets
+    # send packets
     index = 0
-    while index < 20:
+    while index < 5:
         # sample Arducam - one sample per packet
         camera_sample = sample_camera()
 

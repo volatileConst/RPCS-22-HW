@@ -10,7 +10,7 @@ def mic_read(time):
     # Read data from sensor and store them into file.wav
     # -r sample rate (2000 -> 8kb in size, 480000 -> 1920044 b in size)
     # os.system("cd microphone/i2smic")
-    command = "arecord -D plughw:0 -c1 -r 480000 -f S32_LE -t wav -V mono -d " + str(time) + " audio.wav"
+    command = "arecord -D plughw:1 -c1 -r 480000 -f S32_LE -t wav -V mono -d " + str(time) + " audio.wav"
     os.system(command)
 
     # Read data from file.wav
