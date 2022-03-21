@@ -18,6 +18,9 @@ from aws import *
 bucket_name = "18745-infrastructure"
 folder_path = "dummy_npz/"
 
+# define number of samples
+num_samples = 5
+
 
 if __name__ == '__main__':
     
@@ -39,7 +42,7 @@ if __name__ == '__main__':
     # record starting time
     # start_time = time.time()
     
-    while index < 20:
+    while index < num_samples:
         # print time
         # print("current time:", time.time() - start_time)
 
@@ -62,12 +65,14 @@ if __name__ == '__main__':
         # grab the file and ship it to the bucket
         s3_msg = aws.upload_file_to_bucket(bucket_name, file_path)
 
+        print("outer pi packet", index, "shipped!")
+
         index += 1
 
     # delete files
     index = 0
 
-    while index < 20:
+    while index < num_samples:
 
         zip_path = 'outer_test_' + str(index) + '.npz'
         os.remove(zip_path)
