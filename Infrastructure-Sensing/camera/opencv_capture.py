@@ -30,15 +30,17 @@ def sample_camera():
     
     # cv2.destroyAllWindows()
 
-"""while(True):
+""" while(True):
     # Capture and display photo every 5 seconds
     ret, frame = camera.read()
-    # print(cv2.CAP_PROP_BUFFERSIZE)
+
     camera.grab()
     
     image = cv2.resize(frame, (680, 480))
     cv2.imshow('photo', image)
-    cv2.waitKey(1000)
+    cv2.waitKey(200)
     # time.sleep(3)
+
+    # print("photo taken!")
     
     # cv2.destroyAllWindows()"""
