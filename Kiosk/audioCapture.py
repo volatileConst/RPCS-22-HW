@@ -17,7 +17,7 @@ def recAudio():
 
     # Record for up to 10 minutes unless manually stopped 
     # by pressing the 'x' key
-    start_audio_recording(aud_name, mic=0, rec_time=5)
+    start_audio_recording(aud_name, mic=2, rec_time=5)
     print("Started audio rec...\n")
     # Time the camera recording. Stop recording after 
     # rec_time and save video locally.
