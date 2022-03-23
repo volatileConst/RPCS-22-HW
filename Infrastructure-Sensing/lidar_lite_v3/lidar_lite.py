@@ -15,21 +15,27 @@ class lidar_lite():
         self.low_byte_reg = 0x10
         self.high_byte_reg = 0x0f
     
-    def get_distance(self):
+    def get_distance(self, samples):
 
-        # 1. write 0x04 to register 0x00
-        bus.write_byte_data(self.i2c_addr, self.write_reg, 0x04)
+        readings = []
 
-        # 2. read register 0x01 until bit 0 (LSB) goes low
-        bus.write_byte(self.i2c_addr, self.wait_reg)
-        while bus.read_byte(self.i2c_addr) & 0x01 != 0:
-            pass
+        for num in range(samples):
+            # 1. write 0x04 to register 0x00
+            bus.write_byte_data(self.i2c_addr, self.write_reg, 0x04)
 
-        # 3. read high byte and low byte
-        bus.write_byte(self.i2c_addr, self.high_byte_reg)
-        reading = bus.read_byte(self.i2c_addr) << 8
-        bus.write_byte(self.i2c_addr, self.low_byte_reg)
-        reading |= bus.read_byte(self.i2c_addr)
+            # 2. read register 0x01 until bit 0 (LSB) goes low
+            bus.write_byte(self.i2c_addr, self.wait_reg)
+            while bus.read_byte(self.i2c_addr) & 0x01 != 0:
+                pass
 
-        # 4. return the reading
-        return reading
+            # 3. read high byte and low byte
+            bus.write_byte(self.i2c_addr, self.high_byte_reg)
+            reading = bus.read_byte(self.i2c_addr) << 8
+            bus.write_byte(self.i2c_addr, self.low_byte_reg)
+            reading |= bus.read_byte(self.i2c_addr)
+
+            # 4. append the reading
+            readings.append(reading)
+
+        # return all readings
+        return readings

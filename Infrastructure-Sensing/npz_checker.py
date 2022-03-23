@@ -5,8 +5,8 @@ import cv2
 
 # define the name of bucket here
 bucket_name = "18745-infrastructure"
-outer_file_path = "dummy_npz/outer_test_3.npz"
-outer_dst_path = "outer_test_3.npz"
+outer_file_path = "dummy_npz/outer_test_2.npz"
+outer_dst_path = "outer_test_2.npz"
 inner_file_path = "dummy_npz/inner_test_1.npz"
 inner_dst_path = "inner_test_1.npz"
 
@@ -36,6 +36,12 @@ if __name__=='__main__':
 
     lidar_readings = test['PRX']
 
+    # mpu_data = test['MPU']
+    # print('IMU data:', mpu_data)
+
+    mic = test['MIC']
+    print('MIC data:', mic)
+
     for reading in lidar_readings:
         print('distance:', reading, 'cm')
 
@@ -45,12 +51,6 @@ if __name__=='__main__':
 
     cv2.imshow('cam image', cam_image)
     cv2.waitKey(0)
-
-    mpu_data = inner_test['MPU']
-    print('IMU data:', mpu_data)
-
-    mic = inner_test['MIC']
-    print('MIC data:', mic)
 
     os.remove(outer_dst_path)
     os.remove(inner_dst_path)
