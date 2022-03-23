@@ -1,5 +1,6 @@
 import numpy as np
 from aws import *
+import os
 import cv2
 
 # define the name of bucket here
@@ -50,5 +51,8 @@ if __name__=='__main__':
 
     mic = inner_test['MIC']
     print('MIC data:', mic)
+
+    os.remove(outer_dst_path)
+    os.remove(inner_dst_path)
 
 
