@@ -11,17 +11,29 @@ import time
 import numpy as np
 import _thread
 from camera.opencv_capture import *
-# from GPS.file.py import *
+from GPS.read_GPS import *
 from aws import *
 
 # define the name of bucket here
+aws = 0
 bucket_name = "18745-infrastructure"
 folder_path = "dummy_npz/"
+
+# keep track of packets
 collect_index = 0
 send_index = 0
 
-# starting aws instance
-aws = AWS()
+# keep track of last GPS location
+last_latitude = 0
+last_longitude = 0
+
+def initialization():
+    # starting AWS instance
+    global aws
+    aws = AWS()
+
+    # starting connection to GPS
+    initialize_GPS()
 
 def sensors_read():
     # read camera
@@ -34,17 +46,19 @@ def sensors_read():
     print("[sensing thread] Photo taken within " + str(end-start) + " seconds!")
 
     # read GPS
-    # print("[sensing thread] Start collecting GPS data...")
-    # start = time.time()
-    # GPS_samples = sample_GPS()
-    # end = time.time()
-    # print("[sensing thread] GPS data collected within " + str(end-start) + " seconds!")
+    print("[sensing thread] Start collecting GPS data...")
+
+    start = time.time()
+    GPS_sample = sample_GPS()
+    end = time.time()
+
+    print("[sensing thread] GPS data collected within " + str(end-start) + " seconds!")
     
     # compress data
     zip_path = 'inner_test_' + str(collect_index) + '.npz'
 
     start = time.time()
-    np.savez_compressed(zip_path, CAM=camera_sample) # need to add GPS data
+    np.savez_compressed(zip_path, CAM=camera_sample, GPS=GPS_sample)
     end = time.time()
 
     print("[sensing thread] Packet " + str(collect_index) + " created within " + str(end-start) + " seconds!")
@@ -87,6 +101,9 @@ def sensors_read_wrapper():
         collect_index += 1
 
 if __name__ == '__main__':
+    # initialize AWS and GPS
+    initialization()
+
     # create sensing + streaming threads
     _thread.start_new_thread(send_data_wrapper, ())
     _thread.start_new_thread(sensors_read_wrapper, ())
