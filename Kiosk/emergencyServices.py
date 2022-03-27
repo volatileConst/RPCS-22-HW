@@ -46,7 +46,7 @@ def recVideoThread():
 
 
 
-if __name__=="__main__":
+if __name__ == '__main__':
     recVideoThread()
     print("Video rec thread complete...\n")
 

@@ -190,6 +190,8 @@ def stop_audio_recording(filename):
     # Renaming
     cmd = "rename temp_audio.wav " + filename + ".wav"
     subprocess.call(cmd, shell=True)
+    if not os.path.exists("audios"):
+        os.mkdir("audios")
     shutil.move(filename + ".wav", "audios")
 
 
@@ -251,6 +253,8 @@ def file_manager(filename):
         os.remove(str(local_path) + "/temp_video2.avi")
 
     if os.path.exists(str(local_path) + "/" + filename + ".avi"):
+        if not os.path.exists("videos"):
+            os.mkdir("videos")
         shutil.move(filename + ".avi", "videos")
         # cmd = "move /" + filename + ".avi videos"
         # subprocess.call(cmd, shell=True)

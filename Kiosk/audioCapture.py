@@ -40,9 +40,8 @@ def recAudio():
 
 
 
-def main():
+if __name__ == '__main__':
     recAudio()
     print("Audio rec thread complete...\n")
 
 
-main()
