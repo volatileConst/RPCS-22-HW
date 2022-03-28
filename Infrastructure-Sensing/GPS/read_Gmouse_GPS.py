@@ -1,7 +1,12 @@
-import os
-from subprocess import run
+# uses this library: https://github.com/MartijnBraam/gpsd-py3
+
+import gpsd
+
+def initialize_gps():
+    gpsd.connect()
 
 def read_coordinates():
-    # run GPS data
-    command = "cgps -s"
-    os.system(command)
+    # poll GPS
+    packet = gpsd.get_current()
+    print(packet.position())
+    return packet.position()
