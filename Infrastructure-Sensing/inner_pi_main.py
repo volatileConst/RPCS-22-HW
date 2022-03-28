@@ -11,7 +11,7 @@ import time
 import numpy as np
 import _thread
 from camera.opencv_capture import *
-from GPS.read_GPS import *
+from GPS.read_Gmouse_GPS import *
 from aws import *
 
 # define the name of bucket here
