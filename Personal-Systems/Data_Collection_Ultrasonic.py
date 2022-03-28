@@ -85,32 +85,29 @@ def distance():
 	
 
 if __name__ == "__main__":	
-	
-	f = open(NO_BUMP_PATHNAME, 'w')
-	writer = csv.writer(f)
+    
+    f = open(NO_BUMP_PATHNAME, 'w')
+    writer = csv.writer(f)
+    
+    IMU = MinIMU_v5_pi()
+    IMU.enableAccel_Gyro(0,0)
+    gps.initGPS()
+    cur_time = 0
 
-	IMU = MinIMU_v5_pi()
-	IMU.enableAccel_Gyro(0,0)
-
-	gps.initGPS()
-
-	cur_time = 0
-
-	while cur_time < NUM_SAMPLES * SLEEPTIME:
-	    gps_valid = gps.getGPS()
+    while cur_time < NUM_SAMPLES * SLEEPTIME:
+        # gps_valid = gps.getGPS()
         gps_valid = False
-	    bumpiness = NOT_FLAT
-	    if button.button_pressed():
+        bumpiness = NOT_FLAT
+        if button.button_pressed():
             dist = distance()
         else:
             dist = -1
 
         # TODO: gps_valid before dist
         row = [cur_time, bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist]
-
-		#writer.writerow(row)
-		
-		print(row)
-
-		cur_time += SLEEPTIME
-		time.sleep(SLEEPTIME)
+        
+        #writer.writerow(row)
+        print(row)
+        
+        cur_time += SLEEPTIME
+        time.sleep(SLEEPTIME)
