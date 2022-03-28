@@ -36,8 +36,8 @@ if __name__=='__main__':
 
     lidar_readings = test['PRX']
 
-    # mpu_data = test['MPU']
-    # print('IMU data:', mpu_data)
+    mpu_data = test['MPU']
+    print('IMU data:', mpu_data)
 
     mic = test['MIC']
     print('MIC data:', mic)
@@ -51,6 +51,11 @@ if __name__=='__main__':
 
     cv2.imshow('cam image', cam_image)
     cv2.waitKey(0)
+
+    gps_tuple = inner_test['GPS']
+
+    print("latitude:", gps_tuple[0])
+    print("longitude:", gps_tuple[1])
 
     os.remove(outer_dst_path)
     os.remove(inner_dst_path)

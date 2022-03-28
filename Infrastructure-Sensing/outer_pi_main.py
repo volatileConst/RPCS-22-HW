@@ -17,9 +17,9 @@ from real_sense.depth_image_streaming import *
 from microphone.i2smic.i2smic_script import *
 from lidar_lite_v3.lidar_lite import *
 from aws import *
+from mpu.mpu_driver import *
 
 # commented libraries for now
-# from mpu.mpu_driver import *
 # from GPS.file.py import *
 
 # define the name of bucket here
@@ -65,9 +65,9 @@ def sensors_read():
     print("lidar data sampled!")
 
     # sampling MPU data - 25 MPU samples per packet
-    # print("collecting mpu data...")
-    # MPU_samples = run_mpu(25)
-    # print("MPU data sampled!")
+    print("collecting mpu data...")
+    MPU_samples = run_mpu(25)
+    print("MPU data sampled!")
 
     # sample GPS data - 1 sample per packet
     # print("collecting gps data...")
@@ -79,7 +79,7 @@ def sensors_read():
     file_path = folder_path + 'outer_test_' + str(collect_index) + '.npz'
 
     # numpy zip compressed
-    np.savez_compressed(zip_path, RGB=color_map, DEP=depth_map, MIC=mic_samples, PRX=lidar_samples)
+    np.savez_compressed(zip_path, RGB=color_map, DEP=depth_map, MIC=mic_samples, PRX=lidar_samples, MPU=MPU_samples)
     print("packet zipped!")
 
     # commented for now
@@ -147,8 +147,8 @@ if __name__ == '__main__':
         # print time
         # print("current time:", time.time() - start_time)
         time.sleep(1)
-        print("packets collected:", collect_index+1)
-        print("packets sent:", send_index+1)
+        print("packets collected:", collect_index)
+        print("packets sent:", send_index)
     
     # delete packets
     index = 0

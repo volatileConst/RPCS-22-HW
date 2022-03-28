@@ -3,7 +3,6 @@
 from dbus import Bus
 import smbus
 import numpy
-from time import *
 
 # Macros
 PWR_MGMT_1   = 0x6B
