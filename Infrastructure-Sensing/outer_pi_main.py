@@ -101,6 +101,7 @@ def send_data():
 def sensors_read_wrapper():
     # global instances
     global collect_index
+    global send_index
 
     # thread ends when all packets are collected
     while collect_index < num_samples:

@@ -103,10 +103,15 @@ def send_data_wrapper():
 
 def sensors_read_wrapper():
     global collect_index
+    global send_index
 
     while (1):
-        sensors_read()
-        collect_index += 1
+        if (collect_index > send_index):
+            print("[reading thread] Waiting for packet to be sent!")
+            time.sleep(1) # sleep to manually block the thread
+        else:
+            sensors_read()
+            collect_index += 1
 
 if __name__ == '__main__':
     # initialize AWS and GPS
