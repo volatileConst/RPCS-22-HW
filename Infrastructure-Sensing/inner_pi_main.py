@@ -1,7 +1,7 @@
 # The streaming pipeline for raspberry inside
 # This pipeline contains:
 # - Arducam camera
-# - Sixfab GPS
+# - Gmouse GPS
 # Data types include:
 # - 1980 x 1080 color image
 # - tuple of GPS latitude/longitude with corresponding errors
