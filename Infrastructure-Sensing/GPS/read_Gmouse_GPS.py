@@ -2,11 +2,12 @@
 
 import gpsd
 
-def initialize_gps():
+def initialize_GPS():
+    # connect to localhost
     gpsd.connect()
 
-def read_coordinates():
-    # poll GPS
+def sample_GPS():
+    # poll GPS using gpsd
     packet = gpsd.get_current()
     print(packet.position())
     return packet.position()
