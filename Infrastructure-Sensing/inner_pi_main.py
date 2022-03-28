@@ -49,8 +49,16 @@ def sensors_read():
     print("[sensing thread] Start collecting GPS data...")
 
     start = time.time()
-    GPS_sample = sample_GPS()
+    (new_latitude, new_longitude) = sample_GPS()
     end = time.time()
+    
+    # update GPS coordinates if we got new, valid data
+    if (new_latitude != 0):
+        last_latitude = new_latidude
+    if (new_longitude != 0):
+        last_longitude = new_longitude
+        
+    GPS_sample = (last_latitude, last_longitude)
 
     print("[sensing thread] GPS data collected within " + str(end-start) + " seconds!")
     
