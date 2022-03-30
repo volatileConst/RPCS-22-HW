@@ -3,8 +3,11 @@
 import smbus
 import time
 
+# define bus number over here
+bus_num = 3
+
 # initialize i2c bus
-bus = smbus.SMBus(1)
+bus = smbus.SMBus(bus_num)
 
 class lidar_lite():
 

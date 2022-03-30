@@ -17,11 +17,14 @@ GYRO_XOUT_H  = 0x43
 GYRO_YOUT_H  = 0x45
 GYRO_ZOUT_H  = 0x47
 
+# define bus number
+bus_num = 3
+
 
 # Initialize MPU
 def mpu_init():
 
-	bus = smbus.SMBus(1) 	# or bus = smbus.SMBus(0) for older version boards
+	bus = smbus.SMBus(bus_num) 	# or bus = smbus.SMBus(0) for older version boards
 	
 	Device_Address = 0x68   # MPU6050 device address
 

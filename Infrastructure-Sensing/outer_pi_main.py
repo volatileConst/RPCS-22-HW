@@ -31,11 +31,14 @@ mic_dev_num = mic_init()
 mic_time = 1
 
 # define number of samples
-num_samples = 5
+num_samples = 25
 
 # two global indices for threads
 collect_index = 0
 send_index = 0
+
+# global index for packet deletion
+last_deletion_index = 0
 
 # starting aws instance
 aws = AWS()
@@ -126,9 +129,32 @@ def send_data_wrapper():
             print("[sending thread]Waiting for new pkts!!! Sleep for 0.5 seconds...")
             time.sleep(0.5) # sleep to manually block the thread
         else:
-            print("[sending thread]Seding data to the database!")
+            print("[sending thread]Sending data to the database!")
             send_data()
             send_index += 1
+
+def delete_wrapper():
+    # global instances
+    global send_index
+    global last_deletion_index
+
+    while send_index < num_samples:
+        # delete ~10 packets every time
+        if (send_index - last_deletion_index > 10):
+            print("[deletion thread]Deleting packets...")
+            for i in range(last_deletion_index, send_index):
+
+                zip_path = 'outer_test_' + str(i) + '.npz'
+                os.remove(zip_path)
+
+            # define last deletion index as the current send index
+            last_deletion_index = send_index
+            print("next deleted packet starts from:", last_deletion_index)
+        
+        # if not enough, wait for new packets
+        else:
+            print("[deletion thread]Not enough packets! Sleep for 5 seconds...")
+            time.sleep(5)
 
 if __name__ == '__main__':
 
@@ -142,6 +168,7 @@ if __name__ == '__main__':
     # start threads
     _thread.start_new_thread(sensors_read_wrapper, ())
     _thread.start_new_thread(send_data_wrapper, ())
+    _thread.start_new_thread(delete_wrapper, ())
     
     while send_index < num_samples:
         # print time
@@ -150,14 +177,13 @@ if __name__ == '__main__':
         print("packets collected:", collect_index)
         print("packets sent:", send_index)
     
-    # delete packets
-    index = 0
+    # delete remaining unsent packets
+    if (last_deletion_index != send_index):
 
-    while index < num_samples:
+        for i in range(last_deletion_index, send_index):
 
-        zip_path = 'outer_test_' + str(index) + '.npz'
-        os.remove(zip_path)
-        index += 1
+            zip_path = 'outer_test_' + str(i) + '.npz'
+            os.remove(zip_path)
 
 
     # stop the pipeline
