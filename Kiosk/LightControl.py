@@ -55,5 +55,7 @@ def loop(light):
         light.write_to_light()
         # event.wait(1)
         time.sleep(1)
+    light.set_on(False)
+    light.write_to_light()
 
 

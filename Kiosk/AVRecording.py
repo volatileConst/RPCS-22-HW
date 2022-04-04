@@ -209,10 +209,14 @@ def stop_AVrecording(filename):
     video_thread.stop() 
 
     # Makes sure the threads have finished
-    while threading.active_count() > 1:
+    while threading.active_count() > 3:
+        print()
+        print(threading.active_count())
+        for thread in threading.enumerate(): 
+            print(thread.name)
         time.sleep(1)
 
-
+    print("HIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII")
 #   Merging audio and video signal
 
     if abs(recorded_fps - 6) >= 0.01:    # If the fps rate was higher/lower than expected, re-encode it to the expected
@@ -236,7 +240,44 @@ def stop_AVrecording(filename):
     # Move file to given path and delete unnecessary files
     file_manager(filename)
 
+# def stop_AVrecordingLight(filename):
 
+#     audio_thread.stop() 
+#     frame_counts = video_thread.frame_counts
+#     elapsed_time = time.time() - video_thread.start_time
+#     recorded_fps = frame_counts / elapsed_time
+#     print("total frames " + str(frame_counts))
+#     print("elapsed time " + str(elapsed_time))
+#     print("recorded fps " + str(recorded_fps))
+#     video_thread.stop() 
+
+#     # Makes sure the threads have finished
+#     while threading.active_count() > 1:
+#         time.sleep(1)
+
+
+# #   Merging audio and video signal
+
+#     if abs(recorded_fps - 6) >= 0.01:    # If the fps rate was higher/lower than expected, re-encode it to the expected
+
+#         print("Re-encoding")
+#         cmd = "ffmpeg -r " + str(recorded_fps) + " -i temp_video.avi -pix_fmt yuv420p -r 6 temp_video2.avi"
+#         subprocess.call(cmd, shell=True)
+
+#         print("Muxing")
+#         cmd = "ffmpeg -ac 2 -channel_layout mono -i temp_audio.wav -i temp_video2.avi -pix_fmt yuv420p " + filename + ".avi"
+#         subprocess.call(cmd, shell=True)
+
+#     else:
+
+#         print("Normal recording\nMuxing")
+#         cmd = "ffmpeg -ac 2 -channel_layout mono -i temp_audio.wav -i temp_video.avi -pix_fmt yuv420p " + filename + ".avi"
+#         subprocess.call(cmd, shell=True)
+
+#         print("..")
+
+#     # Move file to given path and delete unnecessary files
+#     file_manager(filename)
 
 # Required and wanted processing of final files
 def file_manager(filename):
