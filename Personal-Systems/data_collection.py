@@ -3,6 +3,8 @@ import time
 import csv
 import os
 import sys
+import aws
+
 
 script_dir     = os.path.dirname(__file__)
 IMU_dir        = os.path.join(script_dir, 'LSM6DS33')
@@ -33,6 +35,9 @@ GPIO_BUTTON = 27
 #set GPIO direction (IN / OUT)
 GPIO.setup(GPIO_BUTTON, GPIO.IN)
 
+
+BUCKET_NAME = '18745-personal-device'
+
 ###### edit constants here ######
 
 if __name__ == "__main__":	
@@ -43,7 +48,10 @@ if __name__ == "__main__":
 	IMU = MinIMU_v5_pi()
 	IMU.enableAccel_Gyro(0,0)
 
-	gps.initGPS()
+	#gps.initGPS()
+	#AWS = aws.AWS()
+
+	#AWS.upload_file_to_bucket(BUCKET_NAME, "flat_campus_updated.csv")
 
 	cur_time = 0
 

@@ -20,13 +20,17 @@ GPIO.setmode(GPIO.BCM)
 
 ###### edit constants here ######
 
-SLEEPTIME         = 2
+SLEEPTIME         = 0.1
 FLAT              = 1  # 1 ~ 5
+MID               = 2
 NOT_FLAT          = 3  # dummy value for bumps - need to manually label looking at data graph
 NO_BUMP_PATHNAME  = '/home/pi/RPCS-22-HW/Personal-Systems/flat_campus_grass.csv'
 YES_BUMP_PATHNAME = '/home/pi/RPCS-22-HW/Personal-Systems/bump1.csv'
 NUM_SAMPLES       = 5000
-
+FLAT_LIBRARY      = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_flat_library.csv'
+BUMPY_LIBRARY     = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_bumpy_library.csv'
+FLAT_GRAVEL       = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_flat_gravel.csv'
+MID_RED_GRAVEL    = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_mid_red_gravel.csv'
 
 #For Button
 #set GPIO Pins
@@ -86,7 +90,8 @@ def distance():
 
 if __name__ == "__main__":	
     
-    f = open(NO_BUMP_PATHNAME, 'w')
+    #f = open(NO_BUMP_PATHNAME, 'w')
+    f = open(MID_RED_GRAVEL, 'w');
     writer = csv.writer(f)
     
     IMU = MinIMU_v5_pi()
@@ -95,18 +100,18 @@ if __name__ == "__main__":
     cur_time = 0
 
     while cur_time < NUM_SAMPLES * SLEEPTIME:
-        # gps_valid = gps.getGPS()
-        gps_valid = False
-        bumpiness = NOT_FLAT
+        gps_valid = gps.getGPS()
+        # gps_valid = False
+        bumpiness = MID
         if button.button_pressed():
             dist = distance()
         else:
             dist = -1
 
         # TODO: gps_valid before dist
-        row = [cur_time, bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist]
+        row = [cur_time, bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist,gps_valid]
         
-        #writer.writerow(row)
+        writer.writerow(row)
         print(row)
         
         cur_time += SLEEPTIME

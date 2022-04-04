@@ -23,7 +23,7 @@ def parseGPS(data):
             _mutex.acquire()
             _gps_valid = False
             _mutex.release()
-            #print("\nNo satellite data available.\n")
+            print("\nNo satellite data available.\n")
             return
         #print("-----Parsing GPRMC-----")
         time = sdata[1][0:2] + ":" + sdata[1][2:4] + ":" + sdata[1][4:6]
