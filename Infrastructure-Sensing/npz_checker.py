@@ -5,10 +5,10 @@ import cv2
 
 # define the name of bucket here
 bucket_name = "18745-infrastructure"
-outer_file_path = "dummy_npz/outer_test_2.npz"
-outer_dst_path = "outer_test_2.npz"
-inner_file_path = "dummy_npz/inner_test_1.npz"
-inner_dst_path = "inner_test_1.npz"
+outer_file_path = "dummy_npz/outer_test_0.npz"
+outer_dst_path = "outer_test_0.npz"
+inner_file_path = "dummy_npz/inner_test_0.npz"
+inner_dst_path = "inner_test_0.npz"
 
 if __name__=='__main__':
 

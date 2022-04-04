@@ -24,8 +24,15 @@ collect_index = 0
 send_index = 0
 
 # keep track of last GPS location
-last_latitude = 0
-last_longitude = 0
+last_latitude = 0.0
+last_longitude = 0.0
+
+# keep track of gps data info
+gps_idle_th = 10.0
+gps_timer = 0.0
+gps_data_accd = False
+gps_last_time_stamp = -1
+pack_saving = True
 
 def initialization():
     # starting AWS instance
@@ -36,40 +43,78 @@ def initialization():
     initialize_GPS()
 
 def sensors_read():
-    # read camera
-    print("[sensing thread] Taking photo...")
-    
-    start = time.time()
-    camera_sample = sample_camera()
-    end = time.time()
 
-    print("[sensing thread] Photo taken within " + str(end-start) + " seconds!")
+    global gps_last_time_stamp
+    global gps_idle_th
+    global gps_timer
+    global gps_data_accd
+    global pack_saving
+
+    global collect_index
+
+    global last_longitude
+    global last_latitude
 
     # read GPS
     print("[sensing thread] Start collecting GPS data...")
 
+    gps_data_accd = False
+
     start = time.time()
-    (new_latitude, new_longitude) = sample_GPS()
+    try:
+        (new_latitude, new_longitude) = sample_GPS()
+        gps_data_accd = True
+    except:
+        print("gps noFixError detected")
+        new_latitude = last_latitude
+        new_longitude = last_longitude
     end = time.time()
     
     # update GPS coordinates if we got new, valid data
-    if (new_latitude != 0):
-        last_latitude = new_latitude
-    if (new_longitude != 0):
-        last_longitude = new_longitude
+    if(gps_data_accd):
+
+        # if the car has not moved
+        if(abs(new_latitude - last_latitude) + abs(new_longitude - last_longitude) < 0.0001):
+            gps_timer += abs(end - gps_last_time_stamp)
+            print(gps_timer)
+            if(gps_timer >= gps_idle_th):
+                # stop sending packages if not moving for long enough
+                pack_saving = False
+        else:
+            pack_saving = True
+            # clear the gps stationary timer
+            gps_timer = 0.0
+
+    else:
+        gps_timer += abs(end - gps_last_time_stamp)
+        if(gps_timer >= gps_idle_th):
+            pack_saving = False
+
+    gps_last_time_stamp = end
+    last_latitude = new_latitude
+    last_longitude = new_longitude
+
+    if(pack_saving):
+
+        # read camera
+        print("[sensing thread] Taking photo...")
+        camera_sample = sample_camera()
+        print("[sensing thread] Photo taken")
+            
+        # collect GPS data
+        GPS_sample = (last_latitude, last_longitude)
+        print("[sensing thread] GPS data collected!")
         
-    GPS_sample = (last_latitude, last_longitude)
+        # compress data
+        zip_path = 'inner_test_' + str(collect_index) + '.npz'
 
-    print("[sensing thread] GPS data collected within " + str(end-start) + " seconds!")
-    
-    # compress data
-    zip_path = 'inner_test_' + str(collect_index) + '.npz'
+        start = time.time()
+        np.savez_compressed(zip_path, CAM=camera_sample, GPS=GPS_sample)
+        end = time.time()
 
-    start = time.time()
-    np.savez_compressed(zip_path, CAM=camera_sample, GPS=GPS_sample)
-    end = time.time()
+        print("[sensing thread] Packet " + str(collect_index) + " created within " + str(end-start) + " seconds!")
 
-    print("[sensing thread] Packet " + str(collect_index) + " created within " + str(end-start) + " seconds!")
+        collect_index += 1
 
 def send_data():
     # send the file to the bucket
@@ -111,7 +156,6 @@ def sensors_read_wrapper():
             time.sleep(1) # sleep to manually block the thread
         else:
             sensors_read()
-            collect_index += 1
 
 if __name__ == '__main__':
     # initialize AWS and GPS
