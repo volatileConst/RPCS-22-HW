@@ -18,9 +18,10 @@ from microphone.i2smic.i2smic_script import *
 from lidar_lite_v3.lidar_lite import *
 from aws import *
 from mpu.mpu_driver import *
+from GPS.read_Gmouse_GPS import *
 
 # commented libraries for now
-# from GPS.file.py import *
+# from GPS.read_Gmouse_GPS import *
 
 # define the name of bucket here
 bucket_name = "18745-infrastructure"
@@ -31,7 +32,7 @@ mic_dev_num = mic_init()
 mic_time = 1
 
 # define number of samples
-num_samples = 999999999
+num_samples = 10
 
 # two global indices for threads
 collect_index = 0
@@ -48,6 +49,13 @@ pipeline = stream_init()
 
 # initialize a lidar instance
 lidar = lidar_lite()
+
+# starting connection to GPS
+initialize_GPS()
+
+# keep track of last GPS location
+last_latitude = 0
+last_longitude = 0
 
 # define thread for all sensors to read
 def sensors_read():
@@ -73,16 +81,28 @@ def sensors_read():
     print("MPU data sampled!")
 
     # sample GPS data - 1 sample per packet
-    # print("collecting gps data...")
-    # GPS_samples = sample_GPS()
-    # print("gps data sampled!")
+    print("[sensing thread] Start collecting GPS data...")
+
+    start = time.time()
+    (new_latitude, new_longitude) = sample_GPS()
+    end = time.time()
+    
+    # update GPS coordinates if we got new, valid data
+    if (new_latitude != 0):
+        last_latitude = new_latitude
+    if (new_longitude != 0):
+        last_longitude = new_longitude
+        
+    GPS_sample = (last_latitude, last_longitude)
+
+    print("[sensing thread] GPS data collected within " + str(end-start) + " seconds!")
 
     # zip file name
     zip_path = 'outer_test_' + str(collect_index) + '.npz'
     file_path = folder_path + 'outer_test_' + str(collect_index) + '.npz'
 
     # numpy zip compressed
-    np.savez_compressed(zip_path, RGB=color_map, DEP=depth_map, MIC=mic_samples, PRX=lidar_samples, MPU=MPU_samples)
+    np.savez_compressed(zip_path, RGB=color_map, DEP=depth_map, MIC=mic_samples, PRX=lidar_samples, MPU=MPU_samples, GPS=GPS_sample)
     print("packet zipped!")
 
     # commented for now
