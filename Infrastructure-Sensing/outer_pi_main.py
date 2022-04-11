@@ -7,7 +7,7 @@
 #  - color image (640 * 480)
 #  - lidar data (integer)
 #  - microphone data (numpy array for 1s audio)
-#  - imu data (6 * n )
+#  - imu data (6 * n)
 
 import time
 import numpy as np
@@ -31,7 +31,7 @@ mic_dev_num = mic_init()
 mic_time = 1
 
 # define number of samples
-num_samples = 25
+num_samples = 999999999
 
 # two global indices for threads
 collect_index = 0
