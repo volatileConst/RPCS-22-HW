@@ -3,6 +3,7 @@ import time
 import csv
 import os
 import sys
+import aws
 
 script_dir     = os.path.dirname(__file__)
 IMU_dir        = os.path.join(script_dir, 'LSM6DS33')
@@ -39,6 +40,7 @@ GPIO_BUTTON = 27
 #set GPIO direction (IN / OUT)
 GPIO.setup(GPIO_BUTTON, GPIO.IN)
 
+BUCKET_NAME = "18745-personal-device"
 ###### edit constants here ######
 
 
@@ -52,8 +54,8 @@ def button_pressed():
 #GPIO.setmode(GPIO.BCM)
  
 #set GPIO Pins
-GPIO_TRIGGER = 25
-GPIO_ECHO = 17
+GPIO_TRIGGER = 24
+GPIO_ECHO = 25
  
 #set GPIO direction (IN / OUT)
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
@@ -89,30 +91,36 @@ def distance():
 	
 
 if __name__ == "__main__":	
-    
-    #f = open(NO_BUMP_PATHNAME, 'w')
-    f = open(MID_RED_GRAVEL, 'w');
-    writer = csv.writer(f)
-    
-    IMU = MinIMU_v5_pi()
-    IMU.enableAccel_Gyro(0,0)
-    gps.initGPS()
-    cur_time = 0
-
-    while cur_time < NUM_SAMPLES * SLEEPTIME:
-        gps_valid = gps.getGPS()
-        # gps_valid = False
-        bumpiness = MID
+    while True:
         if button.button_pressed():
-            dist = distance()
-        else:
-            dist = -1
+            #f = open(NO_BUMP_PATHNAME, 'w')
+            f = open(MID_RED_GRAVEL, 'w');
+            writer = csv.writer(f)
 
-        # TODO: gps_valid before dist
-        row = [cur_time, bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist,gps_valid]
+
+ 
+            AWS = aws.AWS()
+            AWS.upload_file_to_bucket(BUCKET_NAME, "PDHW_Test_file.csv")
+
+            IMU = MinIMU_v5_pi()
+            IMU.enableAccel_Gyro(0,0)
+            #gps.initGPS()
+            cur_time = 0
+
+            while cur_time < NUM_SAMPLES * SLEEPTIME:
+                # gps_valid = gps.getGPS()
+                gps_valid = False
+                bumpiness = MID
+                if button.button_pressed():
+                    dist = distance()
+                else:
+                    dist = -1
+
+                # TODO: gps_valid before dist
+                row = [round(cur_time, 1), bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist, gps_valid]
         
-        writer.writerow(row)
-        print(row)
+                writer.writerow(row)
+                print(row)
         
-        cur_time += SLEEPTIME
-        time.sleep(SLEEPTIME)
+                cur_time += SLEEPTIME
+                time.sleep(SLEEPTIME)
