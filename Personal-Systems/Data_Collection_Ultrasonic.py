@@ -31,7 +31,9 @@ NUM_SAMPLES       = 5000
 FLAT_LIBRARY      = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_flat_library.csv'
 BUMPY_LIBRARY     = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_bumpy_library.csv'
 FLAT_GRAVEL       = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_flat_gravel.csv'
-MID_RED_GRAVEL    = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_mid_red_gravel.csv'
+MID_RED_GRAVEL_PATH    = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_mid_red_gravel.csv'
+MID_RED_GRAVEL_FILE  = 'wheelchair_mid_red_gravel.csv' 
+CLOUD_TEST        = '/home/pi/RPCS-22-HW/Personal-Systems/PDHW_Test_file.csv'
 
 #For Button
 #set GPIO Pins
@@ -94,13 +96,13 @@ if __name__ == "__main__":
     while True:
         if button.button_pressed():
             #f = open(NO_BUMP_PATHNAME, 'w')
-            f = open(MID_RED_GRAVEL, 'w');
+            f = open(MID_RED_GRAVEL_PATH, 'w');
             writer = csv.writer(f)
 
 
  
             AWS = aws.AWS()
-            AWS.upload_file_to_bucket(BUCKET_NAME, "PDHW_Test_file.csv")
+            AWS.upload_file_to_bucket(BUCKET_NAME, MID_RED_GRAVEL_FILE)
 
             IMU = MinIMU_v5_pi()
             IMU.enableAccel_Gyro(0,0)
