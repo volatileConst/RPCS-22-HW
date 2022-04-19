@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
 	while cur_time < NUM_SAMPLES * SLEEPTIME: # getting hundred thousand samples
 
-		gps_valid = gps.getGPS()
+		gps_valid, latitude, longitude = gps.getGPS()
 
 		bumpiness = 0
 		if button.button_pressed():
@@ -65,10 +65,8 @@ if __name__ == "__main__":
 		else:
 			bumpiness = flat
 		
-		if gps_valid:
-			row = [cur_time, bumpiness, IMU.readAccelerometer(), IMU.readGyro(), 1]
-		else:
-			row = [cur_time, bumpiness, IMU.readAccelerometer(), IMU.readGyro()]
+
+		row = [cur_time, bumpiness, IMU.readAccelerometer(), IMU.readGyro(), gps_valid, latitude, longitude]
 		#writer.writerow(row)
 		
 		print(row)

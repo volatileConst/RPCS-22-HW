@@ -16,6 +16,8 @@ def decode(coord):
 
 def parseGPS(data):
     global _gps_valid
+    global _latitude
+    global _longitude
     #print(data, end='') #prints raw data
     if data[0:6] == "$GPRMC":
         sdata = data.split(",")
@@ -23,7 +25,7 @@ def parseGPS(data):
             _mutex.acquire()
             _gps_valid = False
             _mutex.release()
-            print("\nNo satellite data available.\n")
+            #print("\nNo satellite data available.\n")
             return
         #print("-----Parsing GPRMC-----")
         time = sdata[1][0:2] + ":" + sdata[1][2:4] + ":" + sdata[1][4:6]
@@ -45,12 +47,18 @@ def parseGPS(data):
 
         _mutex.acquire()
         _gps_valid = True
+        _latitude = int(latitude[0]) + (float(latitude[2])/60)
+        if dirLat == 'S':
+            _latitude = -_latitude
+        _longitude = int(longitute[0]) + (float(longitute[2])/60)
+        if dirLon == 'W':
+            _longitude = -_longitude
         _mutex.release()
 
 
-        print("\nLatitude: " + str(int(latitude[0]) + (float(latitude[2])/60)) + dirLat) 
-        print("Longitute: " + str(int(longitute[0]) + (float(longitute[2])/60)) + dirLon)
-        print("time : %s, latitude : %s(%s), longitude : %s(%s), speed : %s,True Course : %s, Date : %s, Magnetic Variation : %s(%s),Checksum : %s "%   (time,lat,dirLat,lon,dirLon,speed,trCourse,date,variation,degree,checksum))
+        #print("\nLatitude: " + str(int(latitude[0]) + (float(latitude[2])/60)) + dirLat) 
+        #print("Longitute: " + str(int(longitute[0]) + (float(longitute[2])/60)) + dirLon)
+        #print("time : %s, latitude : %s(%s), longitude : %s(%s), speed : %s,True Course : %s, Date : %s, Magnetic Variation : %s(%s),Checksum : %s "%   (time,lat,dirLat,lon,dirLon,speed,trCourse,date,variation,degree,checksum))
         
 
 _gps_valid = False
@@ -98,5 +106,7 @@ def getGPS():
     global _gps_valid
     _mutex.acquire()
     gps_valid = _gps_valid
+    latitude = _latitude
+    longitude = _longitude
     _mutex.release()
-    return gps_valid
+    return gps_valid, latitude, longitude

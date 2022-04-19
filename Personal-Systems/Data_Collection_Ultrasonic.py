@@ -106,20 +106,18 @@ if __name__ == "__main__":
 
             IMU = MinIMU_v5_pi()
             IMU.enableAccel_Gyro(0,0)
-            #gps.initGPS()
+            gps.initGPS()
             cur_time = 0
 
             while cur_time < NUM_SAMPLES * SLEEPTIME:
-                # gps_valid = gps.getGPS()
-                gps_valid = False
+                gps_valid, latitude, longitude = gps.getGPS()
                 bumpiness = MID
                 if button.button_pressed():
                     dist = distance()
                 else:
                     dist = -1
 
-                # TODO: gps_valid before dist
-                row = [round(cur_time, 1), bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist, gps_valid]
+                row = [round(cur_time, 1), bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist, gps_valid, latitude, longitude]
         
                 writer.writerow(row)
                 print(row)
