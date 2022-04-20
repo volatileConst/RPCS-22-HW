@@ -23,7 +23,7 @@ def parseGPS(data):
         sdata = data.split(",")
         if sdata[2] == 'V':
             _mutex.acquire()
-            _gps_valid = False
+            _gps_valid = 0
             _mutex.release()
             #print("\nNo satellite data available.\n")
             return
@@ -46,7 +46,7 @@ def parseGPS(data):
         longitute = lon.split() # parsing longitute
 
         _mutex.acquire()
-        _gps_valid = True
+        _gps_valid = 1
         _latitude = int(latitude[0]) + (float(latitude[2])/60)
         if dirLat == 'S':
             _latitude = -_latitude
@@ -61,7 +61,7 @@ def parseGPS(data):
         #print("time : %s, latitude : %s(%s), longitude : %s(%s), speed : %s,True Course : %s, Date : %s, Magnetic Variation : %s(%s),Checksum : %s "%   (time,lat,dirLat,lon,dirLon,speed,trCourse,date,variation,degree,checksum))
         
 
-_gps_valid = False
+_gps_valid = 0
 _date_y = 0
 _date_m = 0
 _date_d = 0
