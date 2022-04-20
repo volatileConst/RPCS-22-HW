@@ -121,4 +121,4 @@ class Ticket():
 
 if __name__ == '__main__':
     ticket = Ticket(prt='COM5')
-    ticket.printTicket(ticketType='Day')
+    ticket.printTicket(ticketType='Single')

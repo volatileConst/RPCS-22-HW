@@ -2,10 +2,10 @@ import time
 from LightControl import *
 
 def accessibilityLight():
-    light = Lights('COM4')
+    light = Lights('COM6', 16)
     light.set_enable(True)
     light.set_on(True)
-    light.set_color(255)
+    light.set_color('BLUE')
     light.set_flash(False)
 
     print("Start loop, run 10s")
@@ -20,3 +20,4 @@ def accessibilityLight():
     light.set_on(False)
     print("Shut off, enable false")
     light.set_enable(False)
+
