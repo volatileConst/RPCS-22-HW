@@ -27,10 +27,10 @@ class AWS():
             )
         return f"upload https://{bucket_name}.s3.amazonaws.com/{file_path} successfully"
     
-    def download_file_from_bucket(self, bucket_name, s3_key, dst_path):
+    def download_file(self, bucket_name, s3_key, dst_path):
         bucket = self.s3_resource.Bucket(bucket_name)
         bucket.download_file(Key=s3_key, Filename=dst_path)
-        return f"download from https://{bucket_name}.s3.amazonaws.com/{file_path} successfully"
+        return 1
 
 
 if __name__ == "__main__":

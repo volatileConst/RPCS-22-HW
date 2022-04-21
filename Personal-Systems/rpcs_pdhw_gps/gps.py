@@ -110,3 +110,11 @@ def getGPS():
     longitude = _longitude
     _mutex.release()
     return gps_valid, latitude, longitude
+
+
+def getLatLong():
+    _mutex.acquire()
+    latitude = _latitude
+    longitude = _longitude
+    _mutex.release()
+    return latitude, longitude

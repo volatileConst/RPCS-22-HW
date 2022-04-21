@@ -4,30 +4,25 @@ import csv
 from datetime import datetime 
 from datetime import timedelta  
 from boto3.dynamodb.conditions import Key, Attr
+from decimal import Decimal
+import json
 
+TABLE_NAME = 'Dangerous_GPS'
 
-def creat_table():
+def create_table():
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.create_table (
-        TableName = 'Test_Phase2',
+        TableName = TABLE_NAME,
         KeySchema = [
             {
-                'AttributeName': 'Name',
+                'AttributeName': 'Longitude',
                 'KeyType': 'HASH'
-            },
-            {
-                'AttributeName': 'TimeStamp',
-                'KeyType': 'RANGE'
             }
             ],
         AttributeDefinitions = [
             {
-                'AttributeName': 'Name',
-                'AttributeType': 'S'
-            },
-            {
-                'AttributeName':'TimeStamp',
-                'AttributeType': 'S'
+                'AttributeName':'Longitude',
+                'AttributeType': 'N'
             }
             ],
         ProvisionedThroughput={
@@ -39,41 +34,46 @@ def creat_table():
 def ingestData(path):
     dynamodb = boto3.resource('dynamodb')
     
-    table = dynamodb.Table('Test_Phase2')
+    table = dynamodb.Table(TABLE_NAME)
 
     with open(path,'r') as csvfile:
             csvf = csv.reader(csvfile,delimiter=',')
             next(csvf)
             for item in csvf:
-                metadata_item={'Name':item[0],'TimeStamp':item[1],
-                                'Email':item[2]}
+                metadata_item={'Index':item[0],'Latitude':item[1],
+                                'Longitude':item[2]}
                 table.put_item(Item=metadata_item)
-
-def putSingleItem():
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('Test_tickets') 
-    for n in range(10):
-        Name = datetime.now() + timedelta(days=n)
-        timestamp = str(Name)
-        table.put_item(Item={
-            'Name': 'Michael{}'.format(n),
-            'TimeStamp': timestamp
-        })
 
 def query():
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('Test_Phase2') 
+    table = dynamodb.Table(TABLE_NAME) 
 
     resp = table.query(
 
         KeyConditionExpression = 
-        Key('Name').eq("Michael0")
+        Key('Longitude').eq(1)
     )
     print(resp['Items'])
 
+def putSingleItem(item):
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table(TABLE_NAME)
+    item = json.loads(json.dumps(item), parse_float=Decimal)
+    table.put_item(Item={
+        'Latitude':item[0],
+        'Longitude':item[1],
+        'accX':item[2],
+        'accY':item[3],
+        'accZ':item[4],
+        'gX':item[5],
+        'gY':item[6],
+        'gZ':item[7],
+        'dist':item[8]
+    })
+
 def scan():
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('Test_Phase2') 
+    table = dynamodb.Table(TABLE_NAME) 
 
     resp = table.scan(
         FilterExpression = Attr('TimeStamp').between("2022-03-07 16:28:52.333156", "2022-03-14 16:28:52.600901")
@@ -81,8 +81,11 @@ def scan():
     print(resp['Items'])
 
 
-# creat_table()
+#create_table()
 
-# ingestData('results.csv')
-query()
-# scan()
+#ingestData('results.csv')
+
+putSingleItem()
+
+#query()
+#scan()
