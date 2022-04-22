@@ -39,49 +39,26 @@ def putGeofence(lat, long):
 
     return response
 
-#TODO: implement this
+#TODO: write this code
 def checkInGeofence(lat, long):
+    
+    response = loc_client.batch_evaluate_geofences(
+    CollectionName=collectionName,
+    DevicePositionUpdates=[
+        {
+            'Accuracy': {
+                'Horizontal': 1
+            },
+            'DeviceId': 'testdevice',
+            'Position': [
+                long, lat
+            ],
+            'PositionProperties': {
+                'string': 'string'
+            },
+            'SampleTime': datetime.datetime(2022, 1, 1)
+        },
+    ]
+    )
+    
     return 1
-
-
-# response = loc_client.create_geofence_collection(
-#     CollectionName='test',
-#     Description='testing right now',
-#     # KmsKeyId='testid',
-#     #PricingPlan='RequestBasedUsage',
-#     #PricingPlanDataSource='string',
-#     # Tags={
-#     #     'string': 'string'
-#     # }
-# )
-
-# print(response)
-
-# response = loc_client.list_geofences(
-#     CollectionName=collectionName,
-#     #NextToken=''
-# )
-
-# print(response)
-
-
-# response = loc_client.batch_evaluate_geofences(
-#     CollectionName=collectionName,
-#     DevicePositionUpdates=[
-#         {
-#             'Accuracy': {
-#                 'Horizontal': 1
-#             },
-#             'DeviceId': 'testdevice',
-#             'Position': [
-#                 84.5, 84.5
-#             ],
-#             'PositionProperties': {
-#                 'string': 'string'
-#             },
-#             'SampleTime': datetime.datetime(2015, 1, 1)
-#         },
-#     ]
-# )
-
-# print(response)
