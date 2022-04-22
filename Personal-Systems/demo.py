@@ -34,8 +34,6 @@ FLAT_GRAVEL       = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_flat_gravel
 MID_RED_GRAVEL_PATH    = '/home/pi/RPCS-22-HW/Personal-Systems/wheelchair_mid_red_gravel.csv'
 MID_RED_GRAVEL_FILE  = 'wheelchair_mid_red_gravel.csv' 
 CLOUD_TEST        = '/home/pi/RPCS-22-HW/Personal-Systems/PDHW_Test_file.csv'
-TEST_FILE_PATH = '/home/pi/RPCS-22-HW/Personal-Systems/test_file.csv'
-TEST_FILE = 'test_file.csv'
 
 #For Button
 #set GPIO Pins
@@ -44,7 +42,7 @@ GPIO_BUTTON = 27
 #set GPIO direction (IN / OUT)
 GPIO.setup(GPIO_BUTTON, GPIO.IN)
 
-BUCKET_NAME = "18745-personal-device"
+#BUCKET_NAME = "18745-personal-device"
 ###### edit constants here ######
 
 
@@ -52,26 +50,7 @@ BUCKET_NAME = "18745-personal-device"
 def button_pressed():
     return GPIO.input(GPIO_BUTTON) == 0
 	
-#For Buzzer
-GPIO_BUZZER = 4
-
-#Set GPIO direction
-GPIO.setup(GPIO_BUZZER, GPIO.OUT)
-
-#Function to buzz once
-
-def buzz():
-    for i in range(0,80):
-        GPIO.output(GPIO_BUZZER, True)
-        time.sleep(0.001)
-        GPIO.output(GPIO_BUZZER, False)
-        time.sleep(0.001)
-
-    for i in range(0,100):
-        GPIO.output(GPIO_BUZZER, True)
-        GPIO.output(GPIO_BUZZER, False)
-        time.sleep(0.002)
-
+    
 #For Ultrasonic
 #GPIO Mode (BOARD / BCM)
 #GPIO.setmode(GPIO.BCM)
@@ -113,50 +92,25 @@ def distance():
 	
 	
 
-if __name__ == "__main__":	
+if __name__ == "__main__":
+
+    IMU = MinIMU_v5_pi()
+    #gps.initGPS()
+    IMU.enableAccel_Gyro(0,0)
+    cur_time = 0
+
     while True:
+        gps_valid, latitude, longitude = gps.getGPS()
+
+        bumpiness = MID
         if button.button_pressed():
-            buzz()
-            #f = open(NO_BUMP_PATHNAME, 'w')
-            f = open(TEST_FILE_PATH, 'w');
-            writer = csv.writer(f)
+            dist = distance()
+        else:
+            dist = -1
 
-
- 
-            AWS = aws.AWS()
-            AWS.upload_file_to_bucket(BUCKET_NAME, TEST_FILE)
-
-            IMU = MinIMU_v5_pi()
-            IMU.enableAccel_Gyro(0,0)
-            gps.initGPS()
-            cur_time = 0
-
-            pressed = 0
-            latitude = 0
-            longitude = 0
-
-            while cur_time < NUM_SAMPLES * SLEEPTIME:
-                #gps_valid, latitude, longitude = gps.getGPS()
-                gps_valid = 0
-                bumpiness = MID
-                if button.button_pressed():
-                    dist = distance()
-                    pressed = 1
-                else:
-                    dist = -1
-
-                #if pressed > 0:
-                 #   dist = -1
-
-                row = [round(cur_time, 1), bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist, gps_valid, latitude, longitude]
-                
-                if pressed > 0:
-                    pressed = pressed + 1
-                elif pressed >= 5:
-                    pressed = 0
-
-                writer.writerow(row)
-                print(row)
+        row = [round(cur_time, 1), bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist, gps_valid, latitude, longitude]
         
-                cur_time += SLEEPTIME
-                time.sleep(SLEEPTIME)
+        print(row)
+        
+        cur_time += SLEEPTIME
+        time.sleep(SLEEPTIME)

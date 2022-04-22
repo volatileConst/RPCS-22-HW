@@ -25,7 +25,7 @@ def buzz():
  
 if __name__ == '__main__':
     try:
-        while True:
+        #while True:
             buzz()
  
         # Reset by pressing CTRL + C
