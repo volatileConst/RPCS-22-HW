@@ -60,15 +60,17 @@ def putSingleItem(item):
     table = dynamodb.Table(TABLE_NAME)
     item = json.loads(json.dumps(item), parse_float=Decimal)
     table.put_item(Item={
-        'Latitude':item[0],
-        'Longitude':item[1],
-        'accX':item[2],
-        'accY':item[3],
-        'accZ':item[4],
-        'gX':item[5],
-        'gY':item[6],
-        'gZ':item[7],
-        'dist':item[8]
+        'gps_valid':item[0],
+        'Latitude':item[1],
+        'Longitude':item[2],
+        'accX':item[3],
+        'accY':item[4],
+        'accZ':item[5],
+        'gX':item[6],
+        'gY':item[7],
+        'gZ':item[8],
+        'dist':item[9],
+        'bright':item[10],
     })
 
 def scan():
@@ -80,12 +82,14 @@ def scan():
     )
     print(resp['Items'])
 
+def checkInGeofence(lat, long):
+    return 1
 
 #create_table()
 
 #ingestData('results.csv')
 
-putSingleItem()
+#putSingleItem()
 
 #query()
 #scan()

@@ -18,19 +18,19 @@ def putGeofence(lat, long):
             'Polygon': [
                 [
                     [
-                        long, lat
+                        long+BOUND_DIM, lat+BOUND_DIM
                     ],
                     [
-                        long-BOUND_DIM,lat
+                        long-BOUND_DIM, lat+BOUND_DIM 
                     ],
                     [
-                        long-BOUND_DIM,lat-BOUND_DIM
+                        long-BOUND_DIM, lat-BOUND_DIM
                     ],
                     [
-                        long,lat-BOUND_DIM
+                        long+BOUND_DIM, lat-BOUND_DIM
                     ],
                     [
-                        long, lat
+                        long+BOUND_DIM, lat+BOUND_DIM
                     ],
                 ],
             ]
@@ -61,4 +61,7 @@ def checkInGeofence(lat, long):
     ]
     )
     
+    return 1
+
+def inGeofence():
     return 1

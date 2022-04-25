@@ -1,3 +1,4 @@
+import RPi.GPIO as GPIO
 import os
 import sys
 
@@ -37,16 +38,16 @@ GPIO.setmode(GPIO.BCM)
  
 #GPIO PIN MACROS
 GPIO_BUZZER  = 4
-GPIO_TRIGGER = 27
-GPIO_ECHO    = 17
+GPIO_TRIGGER = 24
+GPIO_ECHO    = 25
  
 #set GPIO direction (IN / OUT)
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
 
 BUCKET_NAME         = '18745-personal-device'
-FILE_PATH_REF_START = 'TODO:get loc/start'
-FILE_PATH_REF_END   = 'TODO:get loc/end'
+FILE_PATH_REF_START = 'collection/start'
+FILE_PATH_REF_END   = 'collection/end'
 DOWNLOAD_DIR        = 'cue/dummy'
 
 if __name__ == '__main__':
@@ -70,10 +71,12 @@ if __name__ == '__main__':
         # up on aws - triggered by pd software team
         while (start == 0):
             try:
-                start = download_file(BUCKET_NAME, FILE_PATH_START, DOWNLOAD_DIR)
+                start = aws_obj.download_file(BUCKET_NAME, FILE_PATH_START, DOWNLOAD_DIR)
             except botocore.exceptions.DataNotFoundError:
                 continue
-    
+
+        print("started")
+
         # user is traveling
         while (end == 0):
             # get current gps
@@ -85,12 +88,19 @@ if __name__ == '__main__':
             # get the rest of measurements
             accX, accY, accZ = IMU.readAccelerometer()
             gX, gY, gZ       = IMU.readGyro()
-            dist             = distance()
+            dist             = ultrasonic.distance()
             row = [lat, long, accX, accY, accZ, gX, gY, gZ, dist]
+            
+            print(row)
 
             # upload the current item on the cloud for 
             # data-analysis to later mark the condition of the road
             dynamoDB.putSingleItem(row)
+
+            #print(row)
+
+            while(1):
+                continue
             
             # user marked dangerous location - update dangerous locations
             if button.button_pressed():
@@ -98,7 +108,7 @@ if __name__ == '__main__':
 
             # poll if user finished trip
             try:
-                end = download_file(BUCKET_NAME, FILE_PATH_END, DOWNLOAD_DIR)
+                end = aws_obj.download_file(BUCKET_NAME, FILE_PATH_END, DOWNLOAD_DIR)
             except botocore.exceptions.DataNotFoundError:
                 continue
 

@@ -5,6 +5,7 @@ import os
 import sys
 from cloud import aws
 from cloud import dynamoDB
+from threading import Thread
 
 import busio
 import digitalio
@@ -20,12 +21,21 @@ script_dir     = os.path.dirname(__file__)
 IMU_dir        = os.path.join(script_dir, 'LSM6DS33')
 button_dir     = os.path.join(script_dir, 'rpcs_pdhw_button')
 gps_dir        = os.path.join(script_dir, 'rpcs_pdhw_gps')
+aws_dir        = os.path.join(script_dir, 'cloud')
+
 sys.path.append(IMU_dir)
 sys.path.append(button_dir)
 sys.path.append(gps_dir)
+sys.path.append(aws_dir)
 
 from MinIMU_v5_pi import MinIMU_v5_pi
 import button, gps
+
+#cloud imports
+import aws
+import dynamoDB
+import locationService
+import botocore
 
 #GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -55,9 +65,12 @@ GPIO_BUTTON = 27
 #set GPIO direction (IN / OUT)
 GPIO.setup(GPIO_BUTTON, GPIO.IN)
 
-BUCKET_NAME = "18745-personal-device"
-###### edit constants here ######
+BUCKET_NAME         = '18745-personal-device'
+FILE_PATH_REF_START = 'collection/start'
+FILE_PATH_REF_END   = 'collection/end'
+DOWNLOAD_DIR        = 'cue/dummy'
 
+###### edit constants here ######
 
 #for button
 def button_pressed():
@@ -100,6 +113,8 @@ GPIO_ECHO = 25
 GPIO.setup(GPIO_TRIGGER, GPIO.OUT)
 GPIO.setup(GPIO_ECHO, GPIO.IN)
  
+start, end = 0, 0
+
 def distance():
     # set Trigger to HIGH
     GPIO.output(GPIO_TRIGGER, True)
@@ -136,54 +151,97 @@ def brightness():
         return 2
     else:
         return 3
-   
 
+def get_end():
+    global end
+    while traveling:
+        try:
+            end = aws_obj.download_file(BUCKET_NAME, FILE_PATH_END, DOWNLOAD_DIR)
+        except botocore.exceptions.ClientError:
+            end = 0
 
-
-if __name__ == "__main__":	
-    while True:
-        if button.button_pressed():
+def buzz_inside_geofence():
+    while traveling:
+        # user entered a dangerous location - buzz the buzzer
+        # TODO: implement this locationService thing
+        if (True):
             buzz()
-            #f = open(NO_BUMP_PATHNAME, 'w')
-            f = open(TEST_FILE_PATH, 'w');
-            writer = csv.writer(f)
 
+if __name__ == '__main__':
+    global traveling
 
- 
-            AWS = aws.AWS()
-            AWS.upload_file_to_bucket(BUCKET_NAME, TEST_FILE)
+    IMU = MinIMU_v5_pi()
+    IMU.enableAccel_Gyro(0,0)
+    aws_obj = aws.AWS()
+    gps.initGPS()
 
-            IMU = MinIMU_v5_pi()
-            IMU.enableAccel_Gyro(0,0)
-            gps.initGPS()
-            cur_time = 0
+    file_iteration = 0
+    traveling = 0
+    inside_geofence = 0
 
-            pressed = 0
-            latitude = 0
-            longitude = 0
+    # wait for gps to warm up
+    time.sleep(3)
 
-            while cur_time < NUM_SAMPLES * SLEEPTIME:
-                #gps_valid, latitude, longitude = gps.getGPS()
-                gps_valid = 0
-                bumpiness = MID
-                if button.button_pressed():
-                    dist = distance()
-                    bright = brightness()
-                    pressed = 1
-                else:
-                    dist = -1
-                    bright = -1
+    t = Thread(target = get_end)
+    t2 = Thread(target = buzz_inside_geofence)
 
+    while True:
+        
+        # next start, end files that cue the process to start
+        FILE_PATH_START = FILE_PATH_REF_START + str(file_iteration)
+        FILE_PATH_END   = FILE_PATH_REF_END   + str(file_iteration)
 
-                row = [round(cur_time, 1), bumpiness, IMU.readAccelerometer(), IMU.readGyro(), dist, bright, gps_valid, latitude, longitude]
-                
-                if pressed > 0:
-                    pressed = pressed + 1
-                elif pressed >= 5:
-                    pressed = 0
+        # wait for the software cue - 'start' file to show
+        # up on aws - triggered by pd software team
+        while (start == 0):
+            try:
+                start = aws_obj.download_file(BUCKET_NAME, FILE_PATH_START, DOWNLOAD_DIR)
+            except botocore.exceptions.ClientError:
+                start = 0
 
-                writer.writerow(row)
-                print(row)
+        traveling = 1        
+        t.start()
+        t2.start()
 
-                cur_time += SLEEPTIME
-                time.sleep(SLEEPTIME)
+        # user is traveling
+        while (end == 0):
+
+            # get current gps
+            gps_valid, lat, long = gps.getGPS()
+
+            # check if user entered dangerous location
+            # TODO: change True to gps_valid
+            if (True):
+                locationService.checkInGeofence(lat, long)
+
+            # get the rest of measurements
+            accX, accY, accZ = IMU.readAccelerometer()
+            gX, gY, gZ       = IMU.readGyro()
+            dist             = distance()
+            bright           = brightness()
+
+            row = [gps_valid, lat, long, accX, accY, accZ, gX, gY, gZ, dist, bright]
+
+            print(row)
+
+            # upload the current item on the cloud for 
+            # data-analysis to later mark the condition of the road
+            dynamoDB.putSingleItem(row)
+
+            # user marked dangerous location - update dangerous locations
+            if button.button_pressed():
+                locationService.putGeofence(lat, long)
+
+            # sleep for 0.1 seconds
+            #TODO: check if 0.1 sleeping achieved between invocations
+            time.sleep(0.1)
+
+            # background thread polls for user ending trip
+        
+        # increment file_increment for next trip
+        file_increment += 1
+        traveling = 0
+        t.join()
+        t2.join()
+
+        start, end = 0, 0
