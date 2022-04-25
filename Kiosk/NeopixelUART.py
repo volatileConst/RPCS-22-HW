@@ -100,8 +100,8 @@ class NeopixelToUART():
 
 
 
-ntu = NeopixelToUART(prt='COM6', num_pixels=16)
-ntu.set_color('BLUE')
+ntu = NeopixelToUART(prt='COM4', num_pixels=100)
+ntu.set_color('RED')
 ntu.set_on(True)
 ntu.set_flash(True)
 ntu.set_enable(True)

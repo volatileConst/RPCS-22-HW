@@ -37,9 +37,9 @@ def recVideo():
         # Close and break the loop after rec_time seconds
         current_time = time.time()
         elapsed_time = current_time - start_time
-        print()
-        print(elapsed_time)
-        print()
+        # print()
+        # print(elapsed_time)
+        # print()
         if elapsed_time > rec_time:
             break
 

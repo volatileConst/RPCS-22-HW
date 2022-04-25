@@ -21,16 +21,16 @@ def flashRed(vid_thread):
     print("Entered flash red thread...\n")
 
     # Setup lights
-    light = Lights('COM4')
+    light = Lights('COM4', 100)
     light.set_enable(True)
     light.set_on(True)
-    light.set_color(RED)
+    light.set_color('RED')
     light.set_flash(True)
     
     thread = threading.Thread(target = loop, args=(light, ))
     thread.start()
 
-    # Poll for recVideo completion
+    # Poll for recVideo completioncd
     # while (vid_thread.is_alive()):
     #     # Do nothing
     #     pass
@@ -57,6 +57,7 @@ def flashRed(vid_thread):
 def emergencyServices():
 
     # Create threads
+    print("entered here \n")
     # thread_call = threading.Thread(target=placeCall)
     thread_video = threading.Thread(target=recVideo) # Start recording video
     thread_lights = threading.Thread(target=flashRed, args=(thread_video, )) # Start flashing lights red

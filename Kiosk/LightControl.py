@@ -66,6 +66,7 @@ import time
 
 class Lights():   
     def __init__(self, prt, num_pixels):
+        print("setting up lights")
         self.num_pixels = num_pixels
         self.BYTESPERPIXEL = 8
         self.baudRate = 3001000
@@ -94,6 +95,7 @@ class Lights():
         self.on = state
 
     def set_color(self, color):
+        print("Setting color")
         self.color = color
     
     def set_flash(self, flash):
@@ -103,7 +105,7 @@ class Lights():
         self.flash_state = not self.flash_state
     
     def compose_colors(self, color):
-        outbuf = None
+        out_buf = None
         if(color is 'RED'):
             out_buf = self.red
             for i in range(self.num_pixels):
@@ -129,6 +131,7 @@ class Lights():
         if(self.on == True):
             if(self.flash == True):
                 if(self.flash_state == True):
+                    print("Turning on ", self.color)
                     cvalue = self.compose_colors(self.color)
 
                 else:
