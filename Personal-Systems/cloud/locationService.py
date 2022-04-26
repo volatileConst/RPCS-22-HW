@@ -7,13 +7,13 @@ import datetime
 
 loc_client = boto3.client('location')
 collectionName = 'dangerous_location'
-BOUND_DIM = 0.1
+BOUND_DIM = 0.0001
 
 def putGeofence(lat, long):
     
     response = loc_client.put_geofence(
         CollectionName = collectionName,
-        GeofenceId     = str(long) + str(lat),
+        GeofenceId     = str(long) + '_' + str(lat),
         Geometry = {
             'Polygon': [
                 [
@@ -39,7 +39,6 @@ def putGeofence(lat, long):
 
     return response
 
-#TODO: write this code
 def checkInGeofence(lat, long):
     
     response = loc_client.batch_evaluate_geofences(
@@ -61,7 +60,4 @@ def checkInGeofence(lat, long):
     ]
     )
     
-    return 1
-
-def inGeofence():
-    return 1
+    return response
