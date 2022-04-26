@@ -61,3 +61,9 @@ def checkInGeofence(lat, long):
     )
     
     return response
+
+lat, long = 45, 45
+
+putGeofence(lat, long)
+
+checkInGeofence(lat,long)
