@@ -162,7 +162,7 @@ def get_end():
 
     # poll for trip status - end is 1 when trip done
     while traveling:
-        end = get_trip_status()
+        end = get_end_status()
         
         # try:
         #     end = aws_obj.download_file(BUCKET_NAME, FILE_PATH_END, DOWNLOAD_DIR)
@@ -226,7 +226,7 @@ if __name__ == '__main__':
     	writer = csv.writer(f)
 
         while (start == 0):
-            start = get_trip_status()
+            start = get_start_status()
 
         traveling = 1        
         t.start()
