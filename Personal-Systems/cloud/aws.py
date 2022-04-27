@@ -17,7 +17,7 @@ class AWS():
     def make_bucket(self, name, acl):
         return self.s3_resource.create_bucket(Bucket=name, ACL=acl, CreateBucketConfiguration={'LocationConstraint':self.region_name})
 
-    def upload_file_to_bucket(self, bucket_name, file_path, s3_bucket):
+    def upload_file(self, bucket_name, file_path):
         file_dir, file_name = os.path.split(file_path)
         bucket = self.s3_resource.Bucket(bucket_name)
         bucket.upload_file(

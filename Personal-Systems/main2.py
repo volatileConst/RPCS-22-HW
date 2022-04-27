@@ -4,9 +4,9 @@ import csv
 import os
 import sys
 from cloud import aws
-from cloud import dynamoDB
+#from cloud import dynamoDB
 from threading import Thread
-import pandas as pd
+#import pandas as pd
 
 import busio
 import digitalio
@@ -33,7 +33,7 @@ import button, gps
 
 #cloud imports
 import aws
-import dynamoDB
+#import dynamoDB
 import locationService
 import botocore
 import cloudWatch
@@ -205,6 +205,9 @@ if __name__ == '__main__':
     t  = Thread(target = get_end)
     t2 = Thread(target = buzz_inside_geofence)
 
+    t.start()
+    t2.start()
+    
     while True:
         
         # next start, end files that cue the process to start
@@ -220,17 +223,17 @@ if __name__ == '__main__':
         #         start = 0
 
         fp = 'pd/bumpiness/original/travel' + str(iteration) + '.csv'
-        
+        localfp = 'travel' + str(iteration) + '.csv'
 
-        f = open(, 'w')
-    	writer = csv.writer(f)
+        f = open(localfp, 'w')
+        writer = csv.writer(f)
 
         while (start == 0):
             start = get_start_status()
 
         traveling = 1        
-        t.start()
-        t2.start()
+        #t.start()
+        #t2.start()
 
         # user is traveling
         while (end == 0):
@@ -250,7 +253,7 @@ if __name__ == '__main__':
 
             row = [-1, -1, accX, accY, accZ, gX, gY, gZ, dist, bright, gps_valid, lat, lon]
 
-            # print(row)        # # increment iteration for next trip
+            print(row)        # # increment iteration for next trip
 
             # data-analysis to later mark the condition of the road
             #dynamoDB.putSingleItem(row)
@@ -277,7 +280,7 @@ if __name__ == '__main__':
         t2.join()
 
         #dynamo_to_s3(aws_obj, iteration)
-        aws_obj.upload_file_to_bucket('18745-data-analysis', fp)
+        aws_obj.upload_file('18745-data-analysis', fp)
         f.close()
 
         # increment iteration for next trip
