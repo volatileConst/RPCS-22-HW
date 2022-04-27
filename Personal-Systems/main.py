@@ -61,6 +61,9 @@ if __name__ == '__main__':
 
     while True:
         
+        f = open(NO_BUMP_PATHNAME, 'w')
+    	writer = csv.writer(f)
+
         start, end = 0, 0
         
         # next start, end files that cue the process to start

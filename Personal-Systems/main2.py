@@ -6,6 +6,7 @@ import sys
 from cloud import aws
 from cloud import dynamoDB
 from threading import Thread
+import pandas as pd
 
 import busio
 import digitalio
@@ -15,7 +16,6 @@ from adafruit_mcp3xxx.analog_in import AnalogIn
 spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 cs = digitalio.DigitalInOut(board.D5)
 mcp = MCP.MCP3008(spi, cs)
-
 
 script_dir     = os.path.dirname(__file__)
 IMU_dir        = os.path.join(script_dir, 'LSM6DS33')
@@ -36,6 +36,8 @@ import aws
 import dynamoDB
 import locationService
 import botocore
+import cloudWatch
+import trip
 
 #GPIO Mode (BOARD / BCM)
 GPIO.setmode(GPIO.BCM)
@@ -69,6 +71,9 @@ BUCKET_NAME         = '18745-personal-device'
 FILE_PATH_REF_START = 'collection/start'
 FILE_PATH_REF_END   = 'collection/end'
 DOWNLOAD_DIR        = 'cue/dummy'
+
+TEMP_FILENAME       = 'temp.csv'
+DATA_ANALYSIS_FP    = 'trip'
 
 ###### edit constants here ######
 
@@ -154,20 +159,35 @@ def brightness():
 
 def get_end():
     global end
+
+    # poll for trip status - end is 1 when trip done
     while traveling:
-        try:
-            end = aws_obj.download_file(BUCKET_NAME, FILE_PATH_END, DOWNLOAD_DIR)
-        except botocore.exceptions.ClientError:
-            end = 0
+        end = get_trip_status()
+        
+        # try:
+        #     end = aws_obj.download_file(BUCKET_NAME, FILE_PATH_END, DOWNLOAD_DIR)
+        # except botocore.exceptions.ClientError:
+        #     end = 0
 
 def buzz_inside_geofence():
+
     while traveling:
         # user entered a dangerous location - buzz the buzzer
-        # TODO: implement this locationService thing
-        if (True):
+        if (cloudWatch.cur_inside_geofence()):
             buzz()
 
+def dynamo_to_s3(aws_obj, iteration):
+    response = dynamoDB.scan()
+    table = list(map(float, response['Items']))
+    df = pd.DataFrame(tables)
+    df.to_csv(TEMP_FILENAME, index=False, header=True)
+
+    # Upload temp file to S3
+    fp = 'pd/bumpiness/original/travel' + str(iteration) + '.csv'
+    aws_obj.upload_file_to_bucket('18745-data-analysis', fp)
+
 if __name__ == '__main__':
+
     global traveling
 
     IMU = MinIMU_v5_pi()
@@ -175,29 +195,38 @@ if __name__ == '__main__':
     aws_obj = aws.AWS()
     gps.initGPS()
 
-    file_iteration = 0
+    iteration = 0
     traveling = 0
     inside_geofence = 0
 
     # wait for gps to warm up
     time.sleep(3)
 
-    t = Thread(target = get_end)
+    t  = Thread(target = get_end)
     t2 = Thread(target = buzz_inside_geofence)
 
     while True:
         
         # next start, end files that cue the process to start
-        FILE_PATH_START = FILE_PATH_REF_START + str(file_iteration)
-        FILE_PATH_END   = FILE_PATH_REF_END   + str(file_iteration)
+        # FILE_PATH_START = FILE_PATH_REF_START + str(iteration)
+        # FILE_PATH_END   = FILE_PATH_REF_END   + str(iteration)
 
         # wait for the software cue - 'start' file to show
         # up on aws - triggered by pd software team
+        # while (start == 0):
+        #     try:
+        #         start = aws_obj.download_file(BUCKET_NAME, FILE_PATH_START, DOWNLOAD_DIR)
+        #     except botocore.exceptions.ClientError:
+        #         start = 0
+
+        fp = 'pd/bumpiness/original/travel' + str(iteration) + '.csv'
+        
+
+        f = open(, 'w')
+    	writer = csv.writer(f)
+
         while (start == 0):
-            try:
-                start = aws_obj.download_file(BUCKET_NAME, FILE_PATH_START, DOWNLOAD_DIR)
-            except botocore.exceptions.ClientError:
-                start = 0
+            start = get_trip_status()
 
         traveling = 1        
         t.start()
@@ -207,12 +236,11 @@ if __name__ == '__main__':
         while (end == 0):
 
             # get current gps
-            gps_valid, lat, long = gps.getGPS()
+            gps_valid, lat, lon = gps.getGPS()
 
             # check if user entered dangerous location
-            # TODO: change True to gps_valid
-            if (True):
-                locationService.checkInGeofence(lat, long)
+            if (gps_valid):
+                locationService.checkInGeofence(lat, lon)
 
             # get the rest of measurements
             accX, accY, accZ = IMU.readAccelerometer()
@@ -220,28 +248,41 @@ if __name__ == '__main__':
             dist             = distance()
             bright           = brightness()
 
-            row = [gps_valid, lat, long, accX, accY, accZ, gX, gY, gZ, dist, bright]
+            row = [-1, -1, accX, accY, accZ, gX, gY, gZ, dist, bright, gps_valid, lat, lon]
 
-            print(row)
+            # print(row)        # # increment iteration for next trip
 
-            # upload the current item on the cloud for 
             # data-analysis to later mark the condition of the road
-            dynamoDB.putSingleItem(row)
+            #dynamoDB.putSingleItem(row)
+
+            writer.writerow(row)
 
             # user marked dangerous location - update dangerous locations
             if button.button_pressed():
-                locationService.putGeofence(lat, long)
+                locationService.putGeofence(lat, lon)
 
             # sleep for 0.1 seconds
             #TODO: check if 0.1 sleeping achieved between invocations
             time.sleep(0.1)
 
             # background thread polls for user ending trip
+
+            # another background thread checks if user is
+            # currently in a dangerous location and buzzes
+            # in a semi-realtime fashion
         
-        # increment file_increment for next trip
-        file_increment += 1
+        # unset traveling status and collect the other threads for this iteration
         traveling = 0
         t.join()
         t2.join()
 
+        #dynamo_to_s3(aws_obj, iteration)
+        aws_obj.upload_file_to_bucket('18745-data-analysis', fp)
+        f.close()
+
+        # increment iteration for next trip
+        iteration += 1
+
+        # reset start and end status
         start, end = 0, 0
+
