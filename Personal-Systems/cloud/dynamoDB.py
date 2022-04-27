@@ -6,8 +6,7 @@ from datetime import timedelta
 from boto3.dynamodb.conditions import Key, Attr
 from decimal import Decimal
 import json
-import pandas as pd
-
+#import pandas as pd
 
 TABLE_NAME = 'Dangerous_GPS'
 
@@ -87,23 +86,23 @@ def scan():
 def checkInGeofence(lat, long):
     return 1
 
-num = 1.2
+# num = 1.2
 
-putSingleItem([-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2])
+# putSingleItem([-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2])
 
-response = scan()['Items']
+# response = scan()['Items']
 
-print(response)
+# print(response)
 
-response = response[1].values()
+# response = response[1].values()
 
-print(response)
+# print(response)
 
-table = list(map(float, response))
+# table = list(map(float, response))
 
-print(table)
+# print(table)
 
-df = pd.DataFrame(table)
-df.transpose()
-print(df)
-df.to_csv('test.csv', index=False, header=True)
+# df = pd.DataFrame(table)
+# df.transpose()
+# print(df)
+# df.to_csv('test.csv', index=False, header=True)

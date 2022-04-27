@@ -160,21 +160,23 @@ def brightness():
 def get_end():
     global end
 
-    # poll for trip status - end is 1 when trip done
-    while traveling:
-        end = get_end_status()
-        
-        # try:
-        #     end = aws_obj.download_file(BUCKET_NAME, FILE_PATH_END, DOWNLOAD_DIR)
-        # except botocore.exceptions.ClientError:
-        #     end = 0
+    while True:
+        # poll for trip status - end is 1 when trip done
+        while traveling:
+            end = get_end_status()
+            
+            # try:
+            #     end = aws_obj.download_file(BUCKET_NAME, FILE_PATH_END, DOWNLOAD_DIR)
+            # except botocore.exceptions.ClientError:
+            #     end = 0
 
 def buzz_inside_geofence():
 
-    while traveling:
-        # user entered a dangerous location - buzz the buzzer
-        if (cloudWatch.cur_inside_geofence()):
-            buzz()
+    while True:
+        while traveling:
+            # user entered a dangerous location - buzz the buzzer
+            if (cloudWatch.cur_inside_geofence()):
+                buzz()
 
 def dynamo_to_s3(aws_obj, iteration):
     response = dynamoDB.scan()
@@ -208,6 +210,9 @@ if __name__ == '__main__':
     t.start()
     t2.start()
     
+    # send a dummy location so that the buzzer doesn't beep with previous trip
+    locationService.checkInGeofence(0, 0)
+
     while True:
         
         # next start, end files that cue the process to start
@@ -223,6 +228,8 @@ if __name__ == '__main__':
         #         start = 0
 
         fp = 'pd/bumpiness/original/travel' + str(iteration) + '.csv'
+        fp2 = 'pd/risk/original/travel' + str(iteration) + '.csv'
+
         localfp = 'travel' + str(iteration) + '.csv'
 
         f = open(localfp, 'w')
@@ -231,13 +238,13 @@ if __name__ == '__main__':
         while (start == 0):
             start = get_start_status()
 
-        traveling = 1        
         #t.start()
         #t2.start()
 
         # user is traveling
         while (end == 0):
 
+            traveling = 1        
             # get current gps
             gps_valid, lat, lon = gps.getGPS()
 
@@ -248,15 +255,20 @@ if __name__ == '__main__':
             # get the rest of measurements
             accX, accY, accZ = IMU.readAccelerometer()
             gX, gY, gZ       = IMU.readGyro()
-            dist             = distance()
-            bright           = brightness()
+            
+            if button.button_pressed():
+                dist = distance()
+                bright = brightness()
+            else:
+                dist = -1
+                bright = -1
 
             row = [-1, -1, accX, accY, accZ, gX, gY, gZ, dist, bright, gps_valid, lat, lon]
 
             print(row)        # # increment iteration for next trip
 
             # data-analysis to later mark the condition of the road
-            #dynamoDB.putSingleItem(row)
+            dynamoDB.putSingleItem(row)
 
             writer.writerow(row)
 
@@ -276,11 +288,12 @@ if __name__ == '__main__':
         
         # unset traveling status and collect the other threads for this iteration
         traveling = 0
-        t.join()
-        t2.join()
+        # t.join()
+        # t2.join()
 
         #dynamo_to_s3(aws_obj, iteration)
         aws_obj.upload_file('18745-data-analysis', fp)
+        aws_obj.upload_file('18745-data-analysis', fp2)
         f.close()
 
         # increment iteration for next trip
