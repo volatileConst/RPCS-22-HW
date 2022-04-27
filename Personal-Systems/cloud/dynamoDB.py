@@ -6,6 +6,8 @@ from datetime import timedelta
 from boto3.dynamodb.conditions import Key, Attr
 from decimal import Decimal
 import json
+import pandas as pd
+
 
 TABLE_NAME = 'Dangerous_GPS'
 
@@ -60,36 +62,48 @@ def putSingleItem(item):
     table = dynamodb.Table(TABLE_NAME)
     item = json.loads(json.dumps(item), parse_float=Decimal)
     table.put_item(Item={
-        'gps_valid':item[0],
-        'Latitude':item[1],
-        'Longitude':item[2],
-        'accX':item[3],
-        'accY':item[4],
-        'accZ':item[5],
-        'gX':item[6],
-        'gY':item[7],
-        'gZ':item[8],
-        'dist':item[9],
-        'bright':item[10],
+        'invalid1':item[0],
+        'invalid2':item[1],
+        'accX':item[2],
+        'accY':item[3],
+        'accZ':item[4],
+        'gX':item[5],
+        'gY':item[6],
+        'gZ':item[7],
+        'dist':item[8],
+        'bright':item[9],
+        'gps_valid':item[10],        
+        'Latitude':item[11],
+        'Longitude':item[12],
     })
 
 def scan():
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(TABLE_NAME) 
 
-    resp = table.scan(
-        FilterExpression = Attr('TimeStamp').between("2022-03-07 16:28:52.333156", "2022-03-14 16:28:52.600901")
-    )
-    print(resp['Items'])
+    resp = table.scan()
+    return resp
 
 def checkInGeofence(lat, long):
     return 1
 
-#create_table()
+num = 1.2
 
-#ingestData('results.csv')
+putSingleItem([-1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2, -1.2])
 
-#putSingleItem()
+response = scan()['Items']
 
-#query()
-#scan()
+print(response)
+
+response = response[1].values()
+
+print(response)
+
+table = list(map(float, response))
+
+print(table)
+
+df = pd.DataFrame(table)
+df.transpose()
+print(df)
+df.to_csv('test.csv', index=False, header=True)
