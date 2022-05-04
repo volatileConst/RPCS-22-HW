@@ -1,0 +1,3 @@
+[submodule "Infrastructure-Sensing/Infrastructure-Sensing/GPS/ZOE-M8Q"]
+	path = Infrastructure-Sensing/Infrastructure-Sensing/GPS/ZOE-M8Q
+	url = https://github.com/sparkfun/Qwiic_Ublox_Gps_Py
